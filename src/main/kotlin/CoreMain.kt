@@ -31,7 +31,7 @@ fun Application.main() {
     install(CallLogging)
     install(Locations)
     install(Sessions) {
-        header<HeaderData>("Header")
+        header<HeaderData>("Header", storage = SessionStorageMemory())
     }
 
     routing{
