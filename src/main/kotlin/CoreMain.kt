@@ -41,5 +41,3 @@ fun Application.main() {
         LogoutUser()
     }
 }
-
-
