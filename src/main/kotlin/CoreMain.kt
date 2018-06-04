@@ -33,12 +33,12 @@ fun Application.main() {
     install(Sessions) {
         header<HeaderData>("Header")
     }
+
     routing{
         AddUser()
         DeleteUser()
         LoginUser()
         LogoutUser()
-
     }
 }
 
