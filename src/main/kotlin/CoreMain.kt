@@ -2,6 +2,7 @@ import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.locations.*
 import io.ktor.routing.*
+import io.ktor.sessions.SessionStorageMemory
 import io.ktor.sessions.Sessions
 import io.ktor.sessions.header
 import org.jetbrains.exposed.sql.Table
@@ -13,9 +14,6 @@ val base_driver:String = "com.mysql.cj.jdbc.Driver"
 val base_root:String = "root"
 val base_pass:String = "3CE0DE8545098E16CDB"
 
-
-data class HeaderData(val session_id:String)
-
 object user_list : Table() {
     val user_id = integer("user_id").primaryKey().autoIncrement().uniqueIndex()
     var user_email = varchar("user_email",45).uniqueIndex()
@@ -25,6 +23,8 @@ object user_list : Table() {
     val base_salt1 = varchar("salt1", 45)
     val base_salt2 = varchar("salt2", 45)
 }
+
+data class HeaderData(val session_id:String)
 
 fun Application.main() {
     install(DefaultHeaders)

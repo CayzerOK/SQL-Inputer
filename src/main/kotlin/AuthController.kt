@@ -8,6 +8,8 @@ import io.ktor.sessions.*
 
 @Location("/login") data class LoginData(val email: String, val userpass:String)
 
+data class UserMemory(val session_id:String, val email: String)
+
 fun Route.LoginUser() {
     get<LoginData> { ld ->
         if (checkPass(ld.email,ld.userpass))  {
@@ -19,7 +21,6 @@ fun Route.LoginUser() {
     }
     }
 }
-
 fun Route.LogoutUser() {
     get("/logout") {
         call.respond(HttpStatusCode.OK)
