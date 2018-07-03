@@ -5,8 +5,8 @@ import io.ktor.response.respond
 import io.ktor.routing.Route
 
 @Location("/users") data class UserData(val email: String,
-                                                      val username:String,
-                                                      val userpass:String)
+                                        val username:String,
+                                        val userpass:String)
 
 fun Route.AddUser() {
     put<UserData> { ud ->
