@@ -27,7 +27,7 @@ fun Route.LoginUser() {
             call.respond(HttpStatusCode.OK)
         } else {
         call.respond(HttpStatusCode.BadRequest)
-    }
+        }
     }
 }
 

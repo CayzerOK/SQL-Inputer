@@ -10,14 +10,6 @@ import kotlinx.html.*
 data class SampleSession(
         val counter: Int
 )
-
-
-enum class SessionType {
-    CLIENT_SIGNED,
-    SERVER_MEMORY,
-    SERVER_DIRECTORY
-}
-
 fun Route.TestFun() {
     get("/") {
         call.respondRedirect("/view")

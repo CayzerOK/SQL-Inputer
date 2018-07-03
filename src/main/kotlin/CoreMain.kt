@@ -25,42 +25,15 @@ object user_list : Table() {
 data class ServerData(val session_id:String, val session_email: String)
 
 fun Application.main() {
-    val sessionType = SessionType.SERVER_MEMORY
     install(DefaultHeaders)
     install(CallLogging)
-    when (sessionType) {
-        SessionType.CLIENT_SIGNED -> installCookieSessionClientSigned()
-        SessionType.SERVER_MEMORY -> installCookieSessionServerMemory()
-        SessionType.SERVER_DIRECTORY -> installCookieSessionServerDirectory()
-    }
-    routing{
-        TestFun()
-    }
-}
-private fun Application.installCookieSessionClientSigned() {
-    val secretHashKey = hex("6819b57a326945c1968f45236589") // Don't forget to change this value
-
-    install(Sessions) {
-        cookie<SampleSession>("SESSION_FEATURE_SESSION") {
-            cookie.path = "/" // Specify cookie's path '/' so it can be used in the whole site
-            transform(SessionTransportTransformerMessageAuthentication(secretHashKey, "HmacSHA256"))
-        }
-    }
-}
-private fun Application.installCookieSessionServerMemory() {
     install(Sessions) {
         cookie<SampleSession>("SESSION_FEATURE_SESSION_ID", SessionStorageMemory()) {
             cookie.path = "/" // Specify cookie's path '/' so it can be used in the whole site
         }
     }
-}
-private fun Application.installCookieSessionServerDirectory() {
-    install(Sessions) {
-        cookie<SampleSession>(
-                "SESSION_FEATURE_SESSION_ID",
-                directorySessionStorage(File(".sessions"), cached = true)
-        ) {
-            cookie.path = "/" // Specify cookie's path '/' so it can be used in the whole site
-        }
+
+    routing{
+        TestFun()
     }
 }
