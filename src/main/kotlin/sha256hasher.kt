@@ -12,8 +12,7 @@ private fun hasher(text: String ): String {                // Основная �
         result = byteToHex(sha256HashBytes)
     }
     catch ( e: Exception ) {
-        //поимка ошибок на всякий пожарный
-        result = "[Hasher]ERROR: ${e.message}"
+        result = "[Hasher] ${e.message}"
         System.out.println(result)
     }
     return result

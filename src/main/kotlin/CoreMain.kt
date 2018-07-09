@@ -1,11 +1,9 @@
 import io.ktor.application.*
 import io.ktor.features.*
+import io.ktor.locations.Locations
 import io.ktor.routing.*
 import io.ktor.sessions.*
-import io.ktor.util.hex
 import org.jetbrains.exposed.sql.Table
-import java.io.File
-
 
 val base_url:String = "jdbc:mysql://localhost:3306/user_base?useUnicode=true&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC"
 val base_driver:String = "com.mysql.cj.jdbc.Driver"
@@ -22,18 +20,19 @@ object user_list : Table() {
     val base_salt2 = varchar("salt2", 45)
 }
 
-data class ServerData(val session_id:String, val session_email: String)
+data class SessionData(val userID: Int)
 
 fun Application.main() {
     install(DefaultHeaders)
     install(CallLogging)
     install(Sessions) {
-        cookie<SampleSession>("SESSION_FEATURE_SESSION_ID", SessionStorageMemory()) {
+        cookie<SessionData>("SESSION_FEATURE_SESSION_ID", SessionStorageMemory()) {
             cookie.path = "/" // Specify cookie's path '/' so it can be used in the whole site
         }
     }
-
+    install(Locations)
     routing{
-        TestFun()
+        LoginUser()
+        LogoutUser()
     }
 }
