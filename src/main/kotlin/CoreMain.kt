@@ -1,5 +1,6 @@
 import io.ktor.application.*
 import io.ktor.features.*
+import io.ktor.locations.Location
 import io.ktor.locations.Locations
 import io.ktor.routing.*
 import io.ktor.sessions.*
@@ -19,8 +20,15 @@ object user_list : Table() {
     val base_salt1 = varchar("salt1", 45)
     val base_salt2 = varchar("salt2", 45)
 }
+@Location("/login") data class LoginData(val email:String, val password: String)
+@Location("/users") data class UpdatePublicData(val datatype: String, val data:String)
+@Location("/users") data class UpdatePrivateData(val password: String, val datatype: String, val data:String)
+@Location("/users") data class UserData(val email: String,
+                                        val username:String,
+                                        val userpass:String)
 
-data class SessionData(val userID: Int)
+
+data class SessionData(val user_id: Int)
 
 fun Application.main() {
     install(DefaultHeaders)
@@ -34,5 +42,8 @@ fun Application.main() {
     routing{
         LoginUser()
         LogoutUser()
+        AddUser()
+        DeleteUser()
+        EditUser()
     }
 }
