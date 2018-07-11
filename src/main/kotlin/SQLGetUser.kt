@@ -13,21 +13,17 @@ fun SQLGetID(email: String): Int {
     }
     return user_id
 }
-fun SQLGetUserData(user_id:Int,datatype:String):String {
+
+data class UserPubData(val user_email:String, val user_name:String, val avatar_url:String)
+
+fun SQLGetUserData(user_id:Int): UserPubData {
     Database.connect(base_url, base_driver, base_root, base_pass)
     System.out.println("[MySQL] Connected")
-    var result = ""
+    var result = UserPubData("ERROR","ERROR","ERROR")
     transaction {
         user_list.select { user_list.user_id eq user_id }.forEach {
-            when(datatype){
-                "user_email" -> result = it[user_list.user_email]
-                "user_name" -> result = it[user_list.user_name]
-                "avatar_url" -> result = it[user_list.avatar_url]
-                else -> result = "ERROR"
-            }
+            result = UserPubData(it[user_list.user_name],it[user_list.user_email],it[user_list.avatar_url])
         }
     }
-    if (result.equals("")) {
-        return "Not Logined"
-    }else return result
+    return result
 }

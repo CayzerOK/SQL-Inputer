@@ -16,14 +16,14 @@ fun Route.LoginUser() {
         val session = call.sessions.get<SessionData>() ?: SessionData(0)
         if (checkPass(SQLGetID(ld.email), ld.password)) {
             call.sessions.set(session.copy(user_id = SQLGetID(ld.email)))
-            call.respond(HttpStatusCode.OK)
+            call.respondRedirect("/status")
         } else {
             call.respond(HttpStatusCode.BadRequest)
         }
     }
     get("/status") {
         val session = call.sessions.get<SessionData>() ?: SessionData(0)
-        call.respondText(SQLGetUserData(session.user_id, "user_email")+" | "+
-                              SQLGetUserData(session.user_id, "user_name"))
+        val UPD = SQLGetUserData(session.user_id)
+        call.respondText(UPD.user_name+" | "+UPD.user_email+" | "+UPD.avatar_url)
     }
 }

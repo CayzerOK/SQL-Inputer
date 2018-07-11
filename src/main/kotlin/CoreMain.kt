@@ -22,7 +22,7 @@ object user_list : Table() {
 }
 @Location("/login") data class LoginData(val email:String, val password: String)
 @Location("/users") data class UpdatePublicData(val datatype: String, val data:String)
-@Location("/users") data class UpdatePrivateData(val password: String, val datatype: String, val data:String)
+@Location("/users") data class UpdatePrivateData(val datatype: String, val data:String, val password: String)
 @Location("/users") data class UserData(val email: String,
                                         val username:String,
                                         val userpass:String)
@@ -39,6 +39,7 @@ fun Application.main() {
         }
     }
     install(Locations)
+
     routing{
         LoginUser()
         LogoutUser()
