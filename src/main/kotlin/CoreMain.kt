@@ -34,6 +34,7 @@ object user_list : Table() {
 data class SessionData(val user_id: Int)
 
 fun Application.main() {
+    install(Routing)
     install(DefaultHeaders)
     install(Compression)
     install(CallLogging)
@@ -57,4 +58,15 @@ fun Application.main() {
         EditUser()
         Users()
     }
+
 }
+
+
+
+
+
+
+
+
+
+

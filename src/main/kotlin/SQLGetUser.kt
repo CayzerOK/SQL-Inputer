@@ -4,7 +4,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 fun SQLGetID(email: String): Int {
     Database.connect(base_url, base_driver, base_root, base_pass)
     System.out.println("[MySQL] Connected")
-    var user_id:Int = 0
+    var user_id = 0
     transaction {
         user_list.select { user_list.user_email eq email }.forEach {
             user_id = it[user_list.user_id]
