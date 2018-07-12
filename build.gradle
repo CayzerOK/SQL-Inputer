@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.2.50'
+    ext.kotlin_version = '1.2.41'
     ext.ktor_version = '0.9.3'
     ext.logback_version = '1.2.3'
     ext.kotlinx_html_version = '0.6.11'
@@ -45,6 +45,7 @@ dependencies {
     compile "io.ktor:ktor-server-sessions:$ktor_version"
     compile "io.ktor:ktor-html-builder:$ktor_version"
     compile "io.ktor:ktor-locations:$ktor_version"
+    compile "io.ktor:ktor-gson:$ktor_version"
     compile "mysql:mysql-connector-java:8.0.11"
     compile 'org.slf4j:slf4j-api:1.7.21'
     compile 'org.jetbrains.exposed:exposed:0.10.2'
@@ -54,9 +55,9 @@ dependencies {
     compile group: 'ch.qos.logback', name:'logback-core', version: '1.2.3'
     compile "org.jetbrains.kotlinx:kotlinx-html-jvm:$kotlinx_html_version"
     compile "org.jetbrains.kotlinx:kotlinx-html-js:$kotlinx_html_version"
-    compile files('libs/ojdbc7.jar')
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile "io.ktor:ktor-server-test-host:$ktor_version"
+    testCompile "io.ktor:ktor-server-tests:$ktor_version"
 
 }
 

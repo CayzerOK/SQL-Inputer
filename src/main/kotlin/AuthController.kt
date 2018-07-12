@@ -21,9 +21,19 @@ fun Route.LoginUser() {
             call.respond(HttpStatusCode.BadRequest)
         }
     }
+}
+fun Route.Users() {
+    get("/userlist") {
+        call.respondRedirect("/users?page=1&limit=4")
+    }
     get("/status") {
         val session = call.sessions.get<SessionData>() ?: SessionData(0)
-        val UPD = SQLGetUserData(session.user_id)
-        call.respondText(UPD.user_name+" | "+UPD.user_email+" | "+UPD.avatar_url)
+        if (session.user_id == 0) {
+            call.respond(HttpStatusCode.Unauthorized)
+        }else
+        call.respond(SQLGetUserData(session.user_id))
+    }
+    get<GetUsers> {gu ->
+        call.respond(SQLGetUsers(gu.page,gu.limit))
     }
 }

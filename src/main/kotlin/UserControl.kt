@@ -3,12 +3,10 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.locations.*
 import io.ktor.response.respond
 import io.ktor.routing.Route
-import io.ktor.sessions.get
-import io.ktor.sessions.sessions
+import io.ktor.sessions.*
 
 fun Route.AddUser() {
     put<UserData> { ud ->
-        println(ud.username + " is connected.")
         when {
             !isEmailValid(ud.email) -> call.respond(HttpStatusCode.BadRequest)
             !sqlInsert(ud.email, ud.username, ud.userpass) -> call.respond(HttpStatusCode.Conflict)

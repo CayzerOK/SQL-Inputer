@@ -1,10 +1,12 @@
 import io.ktor.application.*
 import io.ktor.features.*
+import io.ktor.gson.*
 import io.ktor.locations.Location
 import io.ktor.locations.Locations
 import io.ktor.routing.*
 import io.ktor.sessions.*
 import org.jetbrains.exposed.sql.Table
+import java.text.DateFormat
 
 val base_url:String = "jdbc:mysql://localhost:3306/user_base?useUnicode=true&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC"
 val base_driver:String = "com.mysql.cj.jdbc.Driver"
@@ -20,6 +22,7 @@ object user_list : Table() {
     val base_salt1 = varchar("salt1", 45)
     val base_salt2 = varchar("salt2", 45)
 }
+@Location("/users") data class GetUsers(val page:Int, val limit:Int)
 @Location("/login") data class LoginData(val email:String, val password: String)
 @Location("/users") data class UpdatePublicData(val datatype: String, val data:String)
 @Location("/users") data class UpdatePrivateData(val datatype: String, val data:String, val password: String)
@@ -32,19 +35,26 @@ data class SessionData(val user_id: Int)
 
 fun Application.main() {
     install(DefaultHeaders)
+    install(Compression)
     install(CallLogging)
     install(Sessions) {
         cookie<SessionData>("SESSION_FEATURE_SESSION_ID", SessionStorageMemory()) {
-            cookie.path = "/" // Specify cookie's path '/' so it can be used in the whole site
+            cookie.path = "/"
         }
     }
     install(Locations)
-
+    install(ContentNegotiation) {
+        gson {
+            setDateFormat(DateFormat.LONG)
+            setPrettyPrinting()
+        }
+    }
     routing{
         LoginUser()
         LogoutUser()
         AddUser()
         DeleteUser()
         EditUser()
+        Users()
     }
 }
