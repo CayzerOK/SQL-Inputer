@@ -1130,17 +1130,17 @@
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="283" parent="279" name="user_pass">
+    <column id="283" parent="279" name="user_url">
       <Position>4</Position>
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
+      <DefaultExpression>&apos;http://nvsdushor.ru/wp-content/uploads/2018/02/шаблон3.jpg&apos;</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <column id="284" parent="279" name="user_url">
+    <column id="284" parent="279" name="user_pass">
       <Position>5</Position>
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
-      <DefaultExpression>&apos;http://nvsdushor.ru/wp-content/uploads/2018/02/шаблон3.jpg&apos;</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
     <column id="285" parent="279" name="salt1">
@@ -1155,26 +1155,47 @@
       <NotNull>1</NotNull>
       <ColumnKind>normal</ColumnKind>
     </column>
-    <index id="287" parent="279" name="user_id_UNIQUE">
+    <column id="287" parent="279" name="role">
+      <Position>8</Position>
+      <DataType>varchar(10)|0s</DataType>
+      <NotNull>1</NotNull>
+      <DefaultExpression>&apos;User&apos;</DefaultExpression>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <column id="288" parent="279" name="ban">
+      <Position>9</Position>
+      <DataType>tinyint(1)|0s</DataType>
+      <NotNull>1</NotNull>
+      <DefaultExpression>&apos;0&apos;</DefaultExpression>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <column id="289" parent="279" name="mute">
+      <Position>10</Position>
+      <DataType>tinyint(1)|0s</DataType>
+      <NotNull>1</NotNull>
+      <DefaultExpression>&apos;0&apos;</DefaultExpression>
+      <ColumnKind>normal</ColumnKind>
+    </column>
+    <index id="290" parent="279" name="user_id_UNIQUE">
       <ColNames>user_id</ColNames>
       <Unique>1</Unique>
       <Type>btree</Type>
     </index>
-    <index id="288" parent="279" name="user_email_UNIQUE">
+    <index id="291" parent="279" name="user_email_UNIQUE">
       <ColNames>user_email</ColNames>
       <Unique>1</Unique>
       <Type>btree</Type>
     </index>
-    <key id="289" parent="279" name="PRIMARY">
+    <key id="292" parent="279" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>user_id</ColNames>
       <Primary>1</Primary>
     </key>
-    <key id="290" parent="279" name="user_id_UNIQUE">
+    <key id="293" parent="279" name="user_id_UNIQUE">
       <ColNames>user_id</ColNames>
       <UnderlyingIndexName>user_id_UNIQUE</UnderlyingIndexName>
     </key>
-    <key id="291" parent="279" name="user_email_UNIQUE">
+    <key id="294" parent="279" name="user_email_UNIQUE">
       <ColNames>user_email</ColNames>
       <UnderlyingIndexName>user_email_UNIQUE</UnderlyingIndexName>
     </key>

@@ -1,3 +1,4 @@
+import com.google.gson.Gson
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.gson.*
@@ -21,17 +22,19 @@ object user_list : Table() {
     val avatar_url = varchar("user_url",255).default("http://nvsdushor.ru/wp-content/uploads/2018/02/шаблон3.jpg")
     val base_salt1 = varchar("salt1", 45)
     val base_salt2 = varchar("salt2", 45)
+    val role = varchar("role", 10).default("User")
+    val ban = bool("ban").default(false)
+    val mute = bool("mute").default(false)
 }
-@Location("/users") data class GetUsers(val page:Int, val limit:Int)
+
 @Location("/login") data class LoginData(val email:String, val password: String)
-@Location("/users") data class UpdatePublicData(val datatype: String, val data:String)
-@Location("/users") data class UpdatePrivateData(val datatype: String, val data:String, val password: String)
-@Location("/users") data class UserData(val email: String,
-                                        val username:String,
-                                        val userpass:String)
+@Location("/users") data class GetUsers(val page:Int, val limit:Int)
+@Location("/users/user") data class GetUserData(val email: String)
+@Location("/users") data class UpdateData(val user_id: Int, val datatype:String, val new_data:String)
+@Location("/users") data class UserData(val email: String, val username:String, val userpass:String)
 
 
-data class SessionData(val user_id: Int)
+data class SessionData(val user_id: Int, val role:String = "Guest")
 
 fun Application.main() {
     install(Routing)

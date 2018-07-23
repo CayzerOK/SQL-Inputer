@@ -54,20 +54,34 @@ fun SQLPassUpdate(user_id:Int, new_pass:String, pass:String): Boolean {
     return result
 }
 
-fun SQLEmailUpdate(user_id:Int, email:String, pass:String): Boolean {
+fun SQLEmailUpdate(user_id:Int, email:String): Boolean {
     var result = false
-    if (checkPass(user_id, pass)) {
-        if (isEmailValid(email)) {
-            Class.forName("com.mysql.cj.jdbc.Driver")
-            Database.connect(base_url, base_driver, base_root, base_pass)
-            System.out.println("[MySQL] Connected")
-            transaction {
-                user_list.update({ user_list.user_id eq user_id }) {
-                    it[user_email] = email
-                    result = true
-                }
+    if (isEmailValid(email)) {
+        Class.forName("com.mysql.cj.jdbc.Driver")
+        Database.connect(base_url, base_driver, base_root, base_pass)
+        System.out.println("[MySQL] Connected")
+        transaction {
+            user_list.update({ user_list.user_id eq user_id }) {
+                it[user_email] = email
+                result = true
             }
-        } else result = false
+        }
     } else result = false
+    return result
+}
+
+fun SQLRoleUpdate(user_id:Int, new_role:String): Boolean {
+    var result = false
+    try {
+        Class.forName("com.mysql.cj.jdbc.Driver")
+        Database.connect(base_url, base_driver, base_root, base_pass)
+        System.out.println("[MySQL] Connected")
+        transaction {
+            user_list.update({ user_list.user_id eq user_id }) {
+                it[role] = new_role
+                result = true
+            }
+        }
+    } catch (e:ExceptionInInitializerError) {result = false}
     return result
 }
