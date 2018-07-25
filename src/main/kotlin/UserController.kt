@@ -29,11 +29,10 @@ fun Route.DeleteUser() {
 fun Route.EditUser() {
     post<UpdateData> { upd ->
         val session = call.sessions.get<SessionData>() ?: SessionData(0, "Guest")
-        val ThisUser = GetRights(session.role)
-        if (ThisUser.canUpdate||upd.user_id==session.user_id) {
+        if (User.canUpdate||upd.user_id==session.user_id) {
             when(upd.datatype){
                 "email" ->
-                    if ((ThisUser.haveFullAccess || upd.user_id==session.user_id)
+                    if ((User.haveFullAccess || upd.user_id==session.user_id)
                             && SQLEmailUpdate(upd.user_id, upd.new_data)) {
                         call.respond(HttpStatusCode.OK)}
                     else call.respond(HttpStatusCode.BadRequest)
@@ -46,7 +45,7 @@ fun Route.EditUser() {
                         call.respond(HttpStatusCode.OK)}
                     else call.respond(HttpStatusCode.BadRequest)
                 "role" ->
-                    if (ThisUser.haveFullAccess && SQLRoleUpdate(upd.user_id,upd.new_data)) {
+                    if (User.haveFullAccess && SQLRoleUpdate(upd.user_id,upd.new_data)) {
                         call.respond(HttpStatusCode.OK)}
                     else call.respond(HttpStatusCode.BadRequest)
             }

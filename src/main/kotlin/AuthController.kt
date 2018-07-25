@@ -18,6 +18,7 @@ fun Route.LoginUser() {
             val userData = SQLGetFullData(SQLGetID(ld.email))
             call.sessions.set(session.copy(userData.user_id,userData.role))
             call.respond(HttpStatusCode.OK)
+            println()
         } else {
             call.respond(HttpStatusCode.BadRequest)
         }
@@ -27,10 +28,12 @@ fun Route.Users() {
 
     get("/profile") {
         val session = call.sessions.get<SessionData>() ?: SessionData(0,"Guest")
-        if (session.user_id == 0) {
-            call.respond(HttpStatusCode.Unauthorized)
-        }else
-        call.respond(SQLGetUserData(session.user_id))
+        println(User.haveFullAccess)
+        when {
+            session.user_id == 0 -> call.respond(HttpStatusCode.Unauthorized)
+            User.haveFullAccess -> call.respond(SQLGetFullUserData(session.user_id))
+            !User.haveFullAccess -> call.respond(SQLGetUserData(session.user_id))
+        }
     }
     get<GetUsers> {gu ->
         val session = call.sessions.get<SessionData>() ?: SessionData(0,"Guest")

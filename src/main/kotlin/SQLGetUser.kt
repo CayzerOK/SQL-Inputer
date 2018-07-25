@@ -41,6 +41,25 @@ fun SQLGetUserData(user_id:Int): UserPublicData {
     }
     return result
 }
+fun SQLGetFullUserData(user_id:Int): UserFullData {
+    Database.connect(base_url, base_driver, base_root, base_pass)
+    System.out.println("[MySQL] Connected")
+    var result = UserFullData(0,"","","","",false, false)
+    transaction {
+        user_list.select { user_list.user_id eq user_id }.forEach {
+            result = UserFullData(
+                    it[user_list.user_id],
+                    it[user_list.user_email],
+                    it[user_list.user_name],
+                    it[user_list.avatar_url],
+                    it[user_list.role],
+                    it[user_list.ban],
+                    it[user_list.mute])
+        }
+    }
+    return result
+}
+
 
 fun SQLGetFullData(user_id:Int): UserFullData {
     Database.connect(base_url, base_driver, base_root, base_pass)

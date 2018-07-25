@@ -46,6 +46,7 @@ fun Application.main() {
             cookie.path = "/"
         }
     }
+    install(RightsChecker)
     install(Locations)
     install(ContentNegotiation) {
         gson {
