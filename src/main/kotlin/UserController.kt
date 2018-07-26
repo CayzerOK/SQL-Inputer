@@ -6,21 +6,21 @@ import io.ktor.routing.Route
 import io.ktor.sessions.*
 
 fun Route.AddUser() {
-    put<UserData> { ud ->
+    put<RegData> { rd ->
         when {
-            !isEmailValid(ud.email) -> call.respond(HttpStatusCode.BadRequest)
-            !sqlInsert(ud.email, ud.username, ud.userpass) -> call.respond(HttpStatusCode.Conflict)
-            else -> call.respond(HttpStatusCode.OK)
+            !isEmailValid(rd.email) -> call.respond(HttpStatusCode.BadRequest)
+            else -> call.respond(SQLInsert(rd.email, rd.username, rd.userpass))
         }
     }
 }
 
 fun Route.DeleteUser() {
-    delete<UserData> {ud ->
+    delete<User> {ud ->
         val session = call.sessions.get<SessionData>() ?: SessionData(0,"Guest")
         when {
             session.user_id==0 -> call.respond(HttpStatusCode.Unauthorized)
-            SQLDelete(session.user_id, ud.userpass) -> call.respond(HttpStatusCode.OK)
+            User.canDelete -> call.respond(SQLDelete(SQLGetID(ud.email)))
+            session.user_id.equals(ud.email) -> call.respond(SQLDelete(SQLGetID(ud.email)))
             else -> call.respond(HttpStatusCode.BadRequest)
         }
     }
@@ -31,24 +31,15 @@ fun Route.EditUser() {
         val session = call.sessions.get<SessionData>() ?: SessionData(0, "Guest")
         if (User.canUpdate||upd.user_id==session.user_id) {
             when(upd.datatype){
-                "email" ->
-                    if ((User.haveFullAccess || upd.user_id==session.user_id)
-                            && SQLEmailUpdate(upd.user_id, upd.new_data)) {
-                        call.respond(HttpStatusCode.OK)}
-                    else call.respond(HttpStatusCode.BadRequest)
-                "username" ->
-                    if (SQLUserNameUpdate(upd.user_id,upd.new_data)){
-                        call.respond(HttpStatusCode.OK)}
-                    else call.respond(HttpStatusCode.BadRequest)
-                "avatar_url" ->
-                    if (SQLAvatarUpdate(upd.user_id,upd.new_data)) {
-                        call.respond(HttpStatusCode.OK)}
-                    else call.respond(HttpStatusCode.BadRequest)
-                "role" ->
-                    if (User.haveFullAccess && SQLRoleUpdate(upd.user_id,upd.new_data)) {
-                        call.respond(HttpStatusCode.OK)}
-                    else call.respond(HttpStatusCode.BadRequest)
+                "email" -> if ((User.haveFullAccess || upd.user_id==session.user_id)) {
+                    call.respond(SQLEmailUpdate(upd.user_id, upd.new_data))
+                } else call.respond(HttpStatusCode.BadRequest)
+                "role" -> if (User.haveFullAccess) {call.respond(SQLRoleUpdate(upd.user_id,upd.new_data))
+                } else call.respond(HttpStatusCode.BadRequest)
+                "username" -> call.respond(SQLUserNameUpdate(upd.user_id,upd.new_data))
+                "password" -> call.respond(SQLPassUpdate(upd.user_id, upd.new_data))
+                "avatar_url" -> call.respond(SQLAvatarUpdate(upd.user_id,upd.new_data))
             }
-        } else call.respond(HttpStatusCode.BadRequest)
+        }
     }
 }

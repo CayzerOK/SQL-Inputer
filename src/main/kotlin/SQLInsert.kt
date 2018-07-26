@@ -1,7 +1,8 @@
+import io.ktor.http.HttpStatusCode
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
-fun sqlInsert(email:String, nickname:String, password:String): Boolean {
+fun SQLInsert(email:String, nickname:String, password:String): HttpStatusCode {
     val salt1 = saltGenerator(6)
     val salt2 = saltGenerator(6)
     val hashedpass = hashit(password, salt1, salt2)
@@ -18,7 +19,7 @@ fun sqlInsert(email:String, nickname:String, password:String): Boolean {
                 }
             }
         } catch (e: java.sql.SQLIntegrityConstraintViolationException) {
-            return false
+            return HttpStatusCode.BadRequest
         }
-        return true
+        return HttpStatusCode.OK
 }
