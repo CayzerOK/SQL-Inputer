@@ -15,7 +15,7 @@ fun Route.LogoutUser() {
     }
 }
 fun Route.LoginUser() {
-    get<LoginData> { ld ->
+    get<lLoginData> { ld ->
         val session = call.sessions.get<SessionData>() ?: SessionData(0,"Guest")
         if (checkPass(SQLGetID(ld.email), ld.password)) {
             val userData = SQLGetFullData(SQLGetID(ld.email))
@@ -38,14 +38,14 @@ fun Route.Users() {
             !User.haveFullAccess -> call.respond(SQLGetUserData(session.user_id))
         }
     }
-    get<GetUsers> {gu ->
+    get<lGetUsers> {gu ->
         val session = call.sessions.get<SessionData>() ?: SessionData(0,"Guest")
         when(User.haveFullAccess){
             true -> call.respond(SQLGetFullUsers(gu.page, gu.limit))
             false -> call.respond(SQLGetUsers(gu.page, gu.limit))
         }
     }
-    get<User> {gud ->
+    get<lUser> {gud ->
         val session = call.sessions.get<SessionData>() ?: SessionData(0,"Guest")
         when(User.haveFullAccess){
             true -> call.respond(SQLGetFullUserData(SQLGetID(gud.email)))

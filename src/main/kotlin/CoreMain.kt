@@ -27,11 +27,11 @@ object user_list : Table() {
     val mute = bool("mute").default(false)
 }
 
-@Location("/login") data class LoginData(val email:String, val password: String)
-@Location("/users") data class GetUsers(val page:Int, val limit:Int)
-@Location("/users/user") data class User(val email: String)
-@Location("/users") data class UpdateData(val user_id: Int, val datatype:String, val new_data:String)
-@Location("/users") data class RegData(val email: String, val username:String, val userpass:String)
+@Location("/login") data class lLoginData(val email:String, val password: String)
+@Location("/users") data class lGetUsers(val page:Int, val limit:Int)
+@Location("/users/user") data class lUser(val email: String)
+@Location("/users") data class lUpdateData(val user_id: Int, val datatype:String, val new_data:String)
+@Location("/users") data class lRegData(val email: String, val username:String, val userpass:String)
 
 
 data class SessionData(val user_id: Int, val role:String = "Guest")

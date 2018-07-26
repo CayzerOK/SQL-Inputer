@@ -6,7 +6,7 @@ import io.ktor.routing.Route
 import io.ktor.sessions.*
 
 fun Route.AddUser() {
-    put<RegData> { rd ->
+    put<lRegData> { rd ->
         when {
             !isEmailValid(rd.email) -> call.respond(HttpStatusCode.BadRequest)
             else -> call.respond(SQLInsert(rd.email, rd.username, rd.userpass))
@@ -15,7 +15,7 @@ fun Route.AddUser() {
 }
 
 fun Route.DeleteUser() {
-    delete<User> {ud ->
+    delete<lUser> {ud ->
         val session = call.sessions.get<SessionData>() ?: SessionData(0,"Guest")
         when {
             session.user_id==0 -> call.respond(HttpStatusCode.Unauthorized)
@@ -27,7 +27,7 @@ fun Route.DeleteUser() {
 }
 
 fun Route.EditUser() {
-    post<UpdateData> { upd ->
+    post<lUpdateData> { upd ->
         val session = call.sessions.get<SessionData>() ?: SessionData(0, "Guest")
         if (User.canUpdate||upd.user_id==session.user_id) {
             when(upd.datatype){
