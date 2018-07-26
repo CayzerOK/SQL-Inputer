@@ -34,7 +34,8 @@ fun Route.EditUser() {
                 "email" -> if ((User.haveFullAccess || upd.user_id==session.user_id)) {
                     call.respond(SQLEmailUpdate(upd.user_id, upd.new_data))
                 } else call.respond(HttpStatusCode.BadRequest)
-                "role" -> if (User.haveFullAccess) {call.respond(SQLRoleUpdate(upd.user_id,upd.new_data))
+                "role" -> if (User.haveFullAccess) {
+                    call.respond(SQLRoleUpdate(upd.user_id,upd.new_data))
                 } else call.respond(HttpStatusCode.BadRequest)
                 "username" -> call.respond(SQLUserNameUpdate(upd.user_id,upd.new_data))
                 "password" -> call.respond(SQLPassUpdate(upd.user_id, upd.new_data))
