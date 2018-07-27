@@ -2,7 +2,10 @@ import io.ktor.application.*
 import io.ktor.http.toHttpDateString
 import io.ktor.sessions.*
 import io.ktor.util.AttributeKey
+import io.ktor.util.GreenwichMeanTime
 import kotlinx.html.currentTimeMillis
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 data class UserRights(
         val haveFullAccess:Boolean,
@@ -26,6 +29,7 @@ class RightsChecker(configuration: Configuration) {
             val feature = RightsChecker(configuration)
             pipeline.intercept(ApplicationCallPipeline.Infrastructure) {
                 val session = call.sessions.get<SessionData>() ?: SessionData(0,"Guest")
+                println(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME)+" User ${session.userID}, ${session.role} connected")
                 when(session.role){
                     "Guest" -> User = UserRights(
                             haveFullAccess = false,
@@ -56,6 +60,10 @@ class RightsChecker(configuration: Configuration) {
                             canBan = true,
                             canMute = true)
                 }
+            }
+            pipeline.intercept(ApplicationCallPipeline.Call) {
+                val session = call.sessions.get<SessionData>() ?: SessionData(0,"Guest")
+                println(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME)+" User ${session.userID}, ${session.role} call answered")
             }
             return feature
         }

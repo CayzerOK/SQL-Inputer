@@ -3,7 +3,6 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 fun SQLGetID(email: String): Int {
     Database.connect(baseURL, baseDriver, baseRoot, basePass)
-    System.out.println("[MySQL] Connected")
     var user_id = 0
     transaction {
         user_list.select { user_list.userEmail eq email }.forEach {
@@ -28,7 +27,6 @@ data class UserFullData(val userID: Int,
 
 fun SQLGetUserData(userID:Int): UserPublicData {
     Database.connect(baseURL, baseDriver, baseRoot, basePass)
-    System.out.println("[MySQL] Connected")
     var result = UserPublicData("","","","")
     transaction {
         user_list.select { user_list.userID eq userID }.forEach {
@@ -43,7 +41,6 @@ fun SQLGetUserData(userID:Int): UserPublicData {
 }
 fun SQLGetFullUserData(userID:Int): UserFullData {
     Database.connect(baseURL, baseDriver, baseRoot, basePass)
-    System.out.println("[MySQL] Connected")
     var result = UserFullData(0,"","","","",false, false)
     transaction {
         user_list.select { user_list.userID eq userID }.forEach {
@@ -63,7 +60,6 @@ fun SQLGetFullUserData(userID:Int): UserFullData {
 
 fun SQLGetFullData(userID:Int): UserFullData {
     Database.connect(baseURL, baseDriver, baseRoot, basePass)
-    System.out.println("[MySQL] Connected")
     var result = UserFullData(0,"","","","",false, false)
     transaction {
         user_list.select { user_list.userID eq userID }.forEach {
@@ -83,7 +79,6 @@ fun SQLGetFullData(userID:Int): UserFullData {
 
 fun SQLGetUsers(page:Int, limit:Int): MutableList<UserPublicData> {
     Database.connect(baseURL, baseDriver, baseRoot, basePass)
-    System.out.println("[MySQL] Connected")
     val userlist = mutableListOf<UserPublicData>()
     transaction {
         for (users in user_list.selectAll().limit(limit, limit*page-limit-1)) {
@@ -99,7 +94,6 @@ fun SQLGetUsers(page:Int, limit:Int): MutableList<UserPublicData> {
 
 fun SQLGetFullUsers(page:Int, limit:Int): MutableList<UserFullData> {
     Database.connect(baseURL, baseDriver, baseRoot, basePass)
-    System.out.println("[MySQL] Connected")
     val userlist = mutableListOf<UserFullData>()
     transaction {
         for (users in user_list.selectAll().limit(limit, limit*page-limit-1)) {

@@ -17,8 +17,8 @@ fun Route.LogoutUser() {
 fun Route.LoginUser() {
     get<lLoginData> { loginCall ->
         val session = call.sessions.get<SessionData>() ?: SessionData(0,"Guest")
-        if (checkPass(SQLGetID(loginCall.email), loginCall.password)) {
-            val userData = SQLGetFullData(SQLGetID(loginCall.email))
+        val userData = SQLGetFullData(SQLGetID(loginCall.email))
+        if (checkPass(userData.userID, loginCall.password)) {
             call.sessions.set(session.copy(userData.userID,userData.role))
             call.respond(HttpStatusCode.OK)
             println()
@@ -31,7 +31,6 @@ fun Route.Users() {
 
     get("/profile") {
         val session = call.sessions.get<SessionData>() ?: SessionData(0,"Guest")
-
         when {
             session.userID == 0 -> call.respond(HttpStatusCode.Unauthorized)
             User.haveFullAccess -> call.respond(SQLGetFullUserData(session.userID))
