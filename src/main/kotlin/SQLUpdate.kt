@@ -6,11 +6,11 @@ fun SQLUserNameUpdate(user_id:Int, name:String): HttpStatusCode {
     var result = HttpStatusCode.BadRequest
     try {
         Class.forName("com.mysql.cj.jdbc.Driver")
-        Database.connect(base_url, base_driver, base_root, base_pass)
+        Database.connect(baseURL, baseDriver, baseRoot, basePass)
         System.out.println("[MySQL] Connected")
         transaction {
-            user_list.update({ user_list.user_id eq user_id}) {
-                it[user_name] = name
+            user_list.update({ user_list.userID eq user_id}) {
+                it[userName] = name
                 result = HttpStatusCode.OK
             }
         }
@@ -22,11 +22,11 @@ fun SQLAvatarUpdate(user_id:Int, url:String): HttpStatusCode {
     var result = HttpStatusCode.BadRequest
     try {
         Class.forName("com.mysql.cj.jdbc.Driver")
-        Database.connect(base_url, base_driver, base_root, base_pass)
+        Database.connect(baseURL, baseDriver, baseRoot, basePass)
         System.out.println("[MySQL] Connected")
         transaction {
-            user_list.update({ user_list.user_id eq user_id }) {
-                it[avatar_url] = url
+            user_list.update({ user_list.userID eq user_id }) {
+                it[avatarURL] = url
                 result = HttpStatusCode.OK
             }
         }
@@ -40,13 +40,13 @@ fun SQLPassUpdate(user_id:Int, new_pass:String): HttpStatusCode {
     var result = HttpStatusCode.BadRequest
     try {
         Class.forName("com.mysql.cj.jdbc.Driver")
-        Database.connect(base_url, base_driver, base_root, base_pass)
+        Database.connect(baseURL, baseDriver, baseRoot, basePass)
         System.out.println("[MySQL] Connected")
         transaction {
-            user_list.update({ user_list.user_id eq user_id }) {
-                it[user_pass] = hashit(new_pass, salt1, salt2)
-                it[base_salt1] = salt1
-                it[base_salt2] = salt2
+            user_list.update({ user_list.userID eq user_id }) {
+                it[userPass] = hashit(new_pass, salt1, salt2)
+                it[baseSalt1] = salt1
+                it[baseSalt2] = salt2
                 result = HttpStatusCode.OK
             }
         }
@@ -58,11 +58,11 @@ fun SQLEmailUpdate(user_id:Int, email:String): HttpStatusCode {
     var result = HttpStatusCode.BadRequest
     if (isEmailValid(email)) {
         Class.forName("com.mysql.cj.jdbc.Driver")
-        Database.connect(base_url, base_driver, base_root, base_pass)
+        Database.connect(baseURL, baseDriver, baseRoot, basePass)
         System.out.println("[MySQL] Connected")
         transaction {
-            user_list.update({ user_list.user_id eq user_id }) {
-                it[user_email] = email
+            user_list.update({ user_list.userID eq user_id }) {
+                it[userEmail] = email
                 result = HttpStatusCode.OK
             }
         }
@@ -70,14 +70,14 @@ fun SQLEmailUpdate(user_id:Int, email:String): HttpStatusCode {
     return result
 }
 
-fun SQLRoleUpdate(user_id:Int, new_role:String): HttpStatusCode {
+fun SQLRoleUpdate(userID:Int, new_role:String): HttpStatusCode {
     var result = HttpStatusCode.BadRequest
     try {
         Class.forName("com.mysql.cj.jdbc.Driver")
-        Database.connect(base_url, base_driver, base_root, base_pass)
+        Database.connect(baseURL, baseDriver, baseRoot, basePass)
         System.out.println("[MySQL] Connected")
         transaction {
-            user_list.update({ user_list.user_id eq user_id }) {
+            user_list.update({ user_list.userID eq userID }) {
                 it[role] = new_role
                 result = HttpStatusCode.OK
             }

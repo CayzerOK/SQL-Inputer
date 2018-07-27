@@ -17,27 +17,19 @@ var User = UserRights(false, listOf(""),false,false,false,false)
 class RightsChecker(configuration: Configuration) {
     val prop = configuration.prop // get snapshot of config into immutable property
     class Configuration {
-        var prop = "value" // mutable property
+        var prop = "value"
     }
-
-    // implement ApplicationFeature in a companion object
     companion object Feature : ApplicationFeature<ApplicationCallPipeline, Configuration, RightsChecker> {
-        // create unique key for the feature
         override val key = AttributeKey<RightsChecker>("RightsChecker")
-
-        // implement installation script
         override fun install(pipeline: ApplicationCallPipeline, configure: Configuration.() -> Unit): RightsChecker {
-
-            // run configuration script
             val configuration = RightsChecker.Configuration().apply(configure)
             val feature = RightsChecker(configuration)
-
             pipeline.intercept(ApplicationCallPipeline.Infrastructure) {
                 val session = call.sessions.get<SessionData>() ?: SessionData(0,"Guest")
                 when(session.role){
                     "Guest" -> User = UserRights(
                             haveFullAccess = false,
-                            accessTo = listOf("Users"),
+                            accessTo = listOf(""),
                             canUpdate = false,
                             canDelete = false,
                             canBan = false,

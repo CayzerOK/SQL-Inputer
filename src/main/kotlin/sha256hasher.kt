@@ -1,19 +1,18 @@
 import java.security.MessageDigest
 
-fun hashit(pass:String,salt1:String,salt2:String): String {
-    return hasher(salt1 + pass + salt2)
+fun hashit(password:String,salt1:String,salt2:String): String {
+    return hasher(salt1 + password + salt2)
 }
 
 private fun hasher(text: String ): String {                // Основная функция, хеширующая пароль
-    var result: String
+    var result= "ERROR"
     try {
         val sha256 = MessageDigest.getInstance("SHA-256")
         val sha256HashBytes = sha256.digest(text.toByteArray()).toTypedArray()
         result = byteToHex(sha256HashBytes)
     }
     catch ( e: Exception ) {
-        result = "[Hasher] ${e.message}"
-        System.out.println(result)
+        println("[Hasher] ${e.message}")
     }
     return result
 }

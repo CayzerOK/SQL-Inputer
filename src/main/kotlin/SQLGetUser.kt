@@ -2,23 +2,23 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
 fun SQLGetID(email: String): Int {
-    Database.connect(base_url, base_driver, base_root, base_pass)
+    Database.connect(baseURL, baseDriver, baseRoot, basePass)
     System.out.println("[MySQL] Connected")
     var user_id = 0
     transaction {
-        user_list.select { user_list.user_email eq email }.forEach {
-            user_id = it[user_list.user_id]
+        user_list.select { user_list.userEmail eq email }.forEach {
+            user_id = it[user_list.userID]
         }
     }
     return user_id
 }
 
-data class UserPublicData(val user_email:String,
-                          val user_name:String,
-                          val avatar_url:String,
+data class UserPublicData(val userEmail:String,
+                          val userName:String,
+                          val avatarURL:String,
                           val role: String)
 
-data class UserFullData(val user_id: Int,
+data class UserFullData(val userID: Int,
                         val user_email:String,
                         val user_name:String,
                         val avatar_url:String,
@@ -26,32 +26,32 @@ data class UserFullData(val user_id: Int,
                         val ban:Boolean,
                         val mute:Boolean)
 
-fun SQLGetUserData(user_id:Int): UserPublicData {
-    Database.connect(base_url, base_driver, base_root, base_pass)
+fun SQLGetUserData(userID:Int): UserPublicData {
+    Database.connect(baseURL, baseDriver, baseRoot, basePass)
     System.out.println("[MySQL] Connected")
     var result = UserPublicData("","","","")
     transaction {
-        user_list.select { user_list.user_id eq user_id }.forEach {
+        user_list.select { user_list.userID eq userID }.forEach {
             result = UserPublicData(
-                    it[user_list.user_email],
-                    it[user_list.user_name],
-                    it[user_list.avatar_url],
+                    it[user_list.userEmail],
+                    it[user_list.userName],
+                    it[user_list.avatarURL],
                     it[user_list.role])
         }
     }
     return result
 }
-fun SQLGetFullUserData(user_id:Int): UserFullData {
-    Database.connect(base_url, base_driver, base_root, base_pass)
+fun SQLGetFullUserData(userID:Int): UserFullData {
+    Database.connect(baseURL, baseDriver, baseRoot, basePass)
     System.out.println("[MySQL] Connected")
     var result = UserFullData(0,"","","","",false, false)
     transaction {
-        user_list.select { user_list.user_id eq user_id }.forEach {
+        user_list.select { user_list.userID eq userID }.forEach {
             result = UserFullData(
-                    it[user_list.user_id],
-                    it[user_list.user_email],
-                    it[user_list.user_name],
-                    it[user_list.avatar_url],
+                    it[user_list.userID],
+                    it[user_list.userEmail],
+                    it[user_list.userName],
+                    it[user_list.avatarURL],
                     it[user_list.role],
                     it[user_list.ban],
                     it[user_list.mute])
@@ -61,17 +61,17 @@ fun SQLGetFullUserData(user_id:Int): UserFullData {
 }
 
 
-fun SQLGetFullData(user_id:Int): UserFullData {
-    Database.connect(base_url, base_driver, base_root, base_pass)
+fun SQLGetFullData(userID:Int): UserFullData {
+    Database.connect(baseURL, baseDriver, baseRoot, basePass)
     System.out.println("[MySQL] Connected")
     var result = UserFullData(0,"","","","",false, false)
     transaction {
-        user_list.select { user_list.user_id eq user_id }.forEach {
+        user_list.select { user_list.userID eq userID }.forEach {
             result = UserFullData(
-                    it[user_list.user_id],
-                    it[user_list.user_email],
-                    it[user_list.user_name],
-                    it[user_list.avatar_url],
+                    it[user_list.userID],
+                    it[user_list.userEmail],
+                    it[user_list.userName],
+                    it[user_list.avatarURL],
                     it[user_list.role],
                     it[user_list.ban],
                     it[user_list.mute])
@@ -82,15 +82,15 @@ fun SQLGetFullData(user_id:Int): UserFullData {
 
 
 fun SQLGetUsers(page:Int, limit:Int): MutableList<UserPublicData> {
-    Database.connect(base_url, base_driver, base_root, base_pass)
+    Database.connect(baseURL, baseDriver, baseRoot, basePass)
     System.out.println("[MySQL] Connected")
     val userlist = mutableListOf<UserPublicData>()
     transaction {
         for (users in user_list.selectAll().limit(limit, limit*page-limit-1)) {
             userlist.add(UserPublicData(
-                    users[user_list.user_email],
-                    users[user_list.user_name],
-                    users[user_list.avatar_url],
+                    users[user_list.userEmail],
+                    users[user_list.userName],
+                    users[user_list.avatarURL],
                     users[user_list.role]))
         }
     }
@@ -98,16 +98,16 @@ fun SQLGetUsers(page:Int, limit:Int): MutableList<UserPublicData> {
 }
 
 fun SQLGetFullUsers(page:Int, limit:Int): MutableList<UserFullData> {
-    Database.connect(base_url, base_driver, base_root, base_pass)
+    Database.connect(baseURL, baseDriver, baseRoot, basePass)
     System.out.println("[MySQL] Connected")
     val userlist = mutableListOf<UserFullData>()
     transaction {
         for (users in user_list.selectAll().limit(limit, limit*page-limit-1)) {
             userlist.add(UserFullData(
-                    users[user_list.user_id],
-                    users[user_list.user_email],
-                    users[user_list.user_name],
-                    users[user_list.avatar_url],
+                    users[user_list.userID],
+                    users[user_list.userEmail],
+                    users[user_list.userName],
+                    users[user_list.avatarURL],
                     users[user_list.role],
                     users[user_list.ban],
                     users[user_list.ban]))
