@@ -15,7 +15,7 @@ fun SQLUserNameUpdate(user_id:Int, name:String): HttpStatusCode {
                 println(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME)+"User $userID, $role. Username updated")
             }
         }
-    }catch (e:ExceptionInInitializerError) {result = HttpStatusCode.BadRequest}
+    }catch (e:Exception) {result = HttpStatusCode.BadRequest}
     return result
 }
 
@@ -30,7 +30,7 @@ fun SQLAvatarUpdate(user_id:Int, url:String): HttpStatusCode {
                 println(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME)+"User $userID, $role. Avatar updated")
             }
         }
-    } catch (e:ExceptionInInitializerError) {result = HttpStatusCode.BadRequest}
+    } catch (e:Exception) {result = HttpStatusCode.BadRequest}
     return result
 }
 
