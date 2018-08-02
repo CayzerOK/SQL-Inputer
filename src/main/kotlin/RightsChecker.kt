@@ -1,11 +1,25 @@
 import io.ktor.application.*
-import io.ktor.http.toHttpDateString
+import io.ktor.auth.authentication
+import io.ktor.features.conversionService
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.Parameters
+import io.ktor.locations.*
+import io.ktor.pipeline.*
+import io.ktor.request.path
+import io.ktor.request.queryString
+import io.ktor.request.receiveParameters
+import io.ktor.response.respond
+import io.ktor.routing.*
 import io.ktor.sessions.*
 import io.ktor.util.AttributeKey
-import io.ktor.util.GreenwichMeanTime
-import kotlinx.html.currentTimeMillis
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
+import kotlin.reflect.KProperty1
+import kotlin.reflect.full.primaryConstructor
+import kotlin.reflect.full.starProjectedType
+import kotlin.reflect.jvm.javaType
 
 data class UserRights(
         val haveFullAccess:Boolean,
@@ -17,8 +31,7 @@ data class UserRights(
 
 var User = UserRights(false, listOf(""),false,false,false,false)
 
-class RightsChecker(configuration: Configuration) {
-    val prop = configuration.prop // get snapshot of config into immutable property
+class RightsChecker() {
     class Configuration {
         var prop = "value"
     }
@@ -26,11 +39,15 @@ class RightsChecker(configuration: Configuration) {
         override val key = AttributeKey<RightsChecker>("RightsChecker")
         override fun install(pipeline: ApplicationCallPipeline, configure: Configuration.() -> Unit): RightsChecker {
             val configuration = RightsChecker.Configuration().apply(configure)
-            val feature = RightsChecker(configuration)
-            pipeline.intercept(ApplicationCallPipeline.Infrastructure) {
-                val session = call.sessions.get<SessionData>() ?: SessionData(0,"Guest")
-                println(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME)+" User ${session.userID}, ${session.role} connected")
-                when(session.role){
+            val feature = RightsChecker()
+
+            val FilterPhase = PipelinePhase("CallFilter")
+            pipeline.insertPhaseAfter(ApplicationCallPipeline.Infrastructure, FilterPhase)
+
+            pipeline.intercept(FilterPhase) {
+                val session = call.sessions.get<SessionData>() ?: SessionData(0, "Guest")
+                println(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME) + " User ${session.userID}, ${session.role} connected")
+                when (session.role) {
                     "Guest" -> User = UserRights(
                             haveFullAccess = false,
                             accessTo = listOf(""),
@@ -40,25 +57,30 @@ class RightsChecker(configuration: Configuration) {
                             canMute = false)
                     "User" -> User = UserRights(
                             haveFullAccess = false,
-                            accessTo = listOf("Users"),
+                            accessTo = listOf("lUsers"),
                             canUpdate = false,
                             canDelete = false,
                             canBan = false,
                             canMute = false)
                     "Moder" -> User = UserRights(
                             haveFullAccess = false,
-                            accessTo = listOf("Users"),
+                            accessTo = listOf("lUsers"),
                             canUpdate = true,
                             canDelete = false,
                             canBan = false,
                             canMute = true)
                     "Admin" -> User = UserRights(
                             haveFullAccess = true,
-                            accessTo = listOf("Users"),
+                            accessTo = listOf("lUsers"),
                             canUpdate = true,
                             canDelete = true,
                             canBan = true,
                             canMute = true)
+                }
+                application.environment.monitor.subscribe(Routing.RoutingCallStarted) {
+                    call: RoutingApplicationCall ->
+                    println("Route started: ${call.route}")
+                    println()
                 }
             }
             pipeline.intercept(ApplicationCallPipeline.Call) {

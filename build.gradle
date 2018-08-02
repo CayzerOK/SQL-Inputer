@@ -43,16 +43,18 @@ dependencies {
     compile "io.ktor:ktor-html-builder:$ktor_version"
     compile "io.ktor:ktor-locations:$ktor_version"
     compile "io.ktor:ktor-gson:$ktor_version"
-    compile 'com.github.kimar:Ktor-Middleware:0.2.2'
+    compile "io.ktor:ktor-utils:$ktor_version"
     compile "mysql:mysql-connector-java:8.0.11"
-    compile 'org.slf4j:slf4j-api:1.7.21'
     compile 'org.jetbrains.exposed:exposed:0.10.2'
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    compile group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlin_version
+    compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: kotlin_version
+    compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk7', version: kotlin_version
+    compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8', version: kotlin_version
+    compile(group: 'org.jetbrains.kotlinx', name: 'kotlinx-io-jvm', version: '0.0.10')
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
     compile group: 'org.slf4j', name:'slf4j-api', version: '1.7.2'
     compile group: 'ch.qos.logback', name:'logback-classic', version: '1.2.3'
     compile group: 'ch.qos.logback', name:'logback-core', version: '1.2.3'
-    compile "org.jetbrains.kotlinx:kotlinx-html-jvm:$kotlinx_html_version"
-    compile "org.jetbrains.kotlinx:kotlinx-html-js:$kotlinx_html_version"
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile "io.ktor:ktor-server-test-host:$ktor_version"
     testCompile "io.ktor:ktor-server-tests:$ktor_version"
