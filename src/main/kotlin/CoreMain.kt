@@ -29,8 +29,8 @@ object user_list : Table() {
 @Location("/login") data class lLoginData(val email:String, val password: String)
 @Location("/users") data class lGetUsers(val page:Int, val limit:Int)
 @Location("/users/user") data class lUser(val email: String)
-@Location("/users") data class lUpdateData(val userID: Int, val datatype:String, val newData:String)
-@Location("/users") data class lRegData(val email: String, val username:String, val userpass:String)
+@Location("/users/update") data class lUpdateData(val userID: Int, val datatype:String, val newData:String)
+@Location("/users/register") data class lRegData(val email: String, val username:String, val userpass:String)
 
 
 data class SessionData(val userID: Int, val role:String = "Guest")
