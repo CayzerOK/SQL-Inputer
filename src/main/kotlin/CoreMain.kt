@@ -1,8 +1,10 @@
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.gson.*
+import io.ktor.http.HttpStatusCode
 import io.ktor.locations.Location
 import io.ktor.locations.Locations
+import io.ktor.response.respond
 import io.ktor.routing.*
 import io.ktor.sessions.*
 import org.jetbrains.exposed.sql.Table
@@ -29,8 +31,8 @@ object user_list : Table() {
 @Location("/login") data class lLoginData(val email:String, val password: String)
 @Location("/users") data class lGetUsers(val page:Int, val limit:Int)
 @Location("/users/user") data class lUser(val email: String)
-@Location("/users/update") data class lUpdateData(val userID: Int, val datatype:String, val newData:String)
-@Location("/users/register") data class lRegData(val email: String, val username:String, val userpass:String)
+@Location("/users/") data class lUpdateData(val userID: Int, val datatype:String, val newData:String)
+@Location("/users/") data class lRegData(val email: String, val username:String, val password:String)
 
 
 data class SessionData(val userID: Int, val role:String = "Guest")
@@ -43,6 +45,11 @@ fun Application.main() {
     install(Sessions) {
         cookie<SessionData>("SESSION_FEATURE_SESSION_ID", SessionStorageMemory()) {
             cookie.path = "/"
+        }
+    }
+    install(StatusPages){
+        exception<AccessErrorException> { cause ->
+            call.respond(HttpStatusCode.BadRequest)
         }
     }
     install(RightsChecker)

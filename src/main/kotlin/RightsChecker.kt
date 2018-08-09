@@ -1,4 +1,6 @@
 import io.ktor.application.*
+import io.ktor.locations.*
+import io.ktor.request.receiveParameters
 import io.ktor.routing.*
 import io.ktor.sessions.*
 import io.ktor.util.*
@@ -7,14 +9,15 @@ import java.time.format.DateTimeFormatter
 
 data class UserRights(
         val haveFullAccess:Boolean,
-        val accessTo:List<String>,
-        val canUpdate:Boolean,
-        val canDelete:Boolean,
+        val accessToGET:List<String>,
+        val accessToPUT:List<String>,
+        val accessToPOST:List<String>,
+        val accessToDELETE:List<String>,
         val canBan:Boolean,
         val canMute:Boolean)
 
-var User = UserRights(false, listOf(""),false,false,false,false)
-
+var User = UserRights(false, listOf(""), listOf(""), listOf(""), listOf(""),false,false)
+class AccessErrorException(override var message:String): Exception(message)
 class RightsChecker() {
     class Configuration {
         var prop = "value"
@@ -32,38 +35,55 @@ class RightsChecker() {
                 when (session.role) {
                     "Guest" -> User = UserRights(
                             haveFullAccess = false,
-                            accessTo = listOf("/login/[email]/[password]/(method:GET)"),
-                            canUpdate = false,
-                            canDelete = false,
+                            accessToGET = listOf(""),
+                            accessToPUT = listOf(""),
+                            accessToPOST = listOf("/login/[email]/[password]"),
+                            accessToDELETE = listOf(""),
                             canBan = false,
                             canMute = false)
                     "User" -> User = UserRights(
                             haveFullAccess = false,
-                            accessTo = listOf("/logout/(method:GET)"),
-                            canUpdate = false,
-                            canDelete = false,
+                            accessToGET = listOf("/logout"),
+                            accessToPUT = listOf(""),
+                            accessToPOST = listOf(""),
+                            accessToDELETE = listOf(""),
                             canBan = false,
                             canMute = false)
                     "Moder" -> User = UserRights(
                             haveFullAccess = false,
-                            accessTo = listOf("/logout/(method:GET)"),
-                            canUpdate = true,
-                            canDelete = false,
+                            accessToGET = listOf("/logout"),
+                            accessToPUT = listOf(""),
+                            accessToPOST = listOf(""),
+                            accessToDELETE = listOf(""),
                             canBan = false,
                             canMute = true)
                     "Admin" -> User = UserRights(
                             haveFullAccess = true,
-                            accessTo = listOf("/logout/(method:GET)"),
-                            canUpdate = true,
-                            canDelete = true,
+                            accessToGET = listOf("/logout"),
+                            accessToPUT = listOf(""),
+                            accessToPOST = listOf(""),
+                            accessToDELETE = listOf(""),
                             canBan = true,
                             canMute = true)
                 }
-                application.environment.monitor.subscribe(Routing.RoutingCallStarted) {
-                    call: RoutingApplicationCall ->
-                    val routeInfo:String = call.route.toString()
-                    if (User.accessTo.contains(routeInfo)) {
+                application.environment.monitor.subscribe(Routing.RoutingCallStarted) { call: RoutingApplicationCall ->
+                    var RouteString = call.route.parent.toString()
+                    when(call.request.local.method.value) {
+                        "GET" -> if (User.accessToGET.contains(RouteString)||User.haveFullAccess) {
+                                println("USER CAN GET "+RouteString)
+                                } else {throw AccessErrorException("USER CAN NOT GET "+RouteString)}
 
+                        "PUT" -> if (User.accessToPUT.contains(RouteString)||User.haveFullAccess) {
+                                println("USER CAN PUT "+RouteString)
+                                } else {throw AccessErrorException("USER CAN NOT PUT "+RouteString)}
+
+                        "POST" -> if (User.accessToPOST.contains(RouteString)||User.haveFullAccess) {
+                                println("USER CAN POST "+RouteString)
+                                } else {throw AccessErrorException("USER CAN NOT POST "+RouteString)}
+
+                        "DELETE" -> if (User.accessToDELETE.contains(RouteString)||User.haveFullAccess) {
+                                println("USER CAN DELETE ")
+                                } else {throw AccessErrorException("USER CAN NOT DELETE "+RouteString)}
                     }
                 }
             }

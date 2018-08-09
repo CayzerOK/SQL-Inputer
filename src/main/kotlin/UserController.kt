@@ -11,7 +11,7 @@ fun Route.AddUser() {
     put<lRegData> { regCall ->
         when {
             !isEmailValid(regCall.email) -> call.respond(HttpStatusCode.BadRequest)
-            else -> call.respond(SQLInsert(regCall.email, regCall.username, regCall.userpass))
+            else -> call.respond(SQLInsert(regCall.email, regCall.username, regCall.password))
         }
     }
 }
@@ -21,8 +21,8 @@ fun Route.DeleteUser() {
         val session = call.sessions.get<SessionData>() ?: SessionData(0,"Guest")
         when {
             session.userID==0 -> call.respond(HttpStatusCode.Unauthorized)
-            User.canDelete -> call.respond(SQLDelete(SQLGetID(delCall.email)))
-            session.userID.equals(delCall.email) -> call.respond(SQLDelete(SQLGetID(delCall.email)))
+            User.haveFullAccess -> call.respond(SQLDelete(SQLGetID(delCall.email)))
+            session.userID.equals(SQLGetID(delCall.email)) -> call.respond(SQLDelete(SQLGetID(delCall.email)))
             else -> call.respond(HttpStatusCode.BadRequest)
         }
     }
@@ -31,7 +31,7 @@ fun Route.DeleteUser() {
 fun Route.EditUser() {
     post<lUpdateData> { editCall ->
         val session = call.sessions.get<SessionData>() ?: SessionData(0, "Guest")
-        if (User.canUpdate||editCall.userID==session.userID) {
+        if (editCall.userID==session.userID) {
             when(editCall.datatype){
                 "email" -> if ((User.haveFullAccess || editCall.userID==session.userID)) {
                     call.respond(SQLEmailUpdate(editCall.userID, editCall.newData))
