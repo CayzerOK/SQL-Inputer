@@ -1,4 +1,5 @@
 import io.ktor.application.*
+import io.ktor.html.each
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.locations.*
@@ -18,31 +19,16 @@ fun Route.AddUser() {
 
 fun Route.DeleteUser() {
     delete<lUser> {delCall ->
-        val session = call.sessions.get<SessionData>() ?: SessionData(0,"Guest")
-        when {
-            session.userID==0 -> call.respond(HttpStatusCode.Unauthorized)
-            User.haveFullAccess -> call.respond(SQLDelete(SQLGetID(delCall.email)))
-            session.userID.equals(SQLGetID(delCall.email)) -> call.respond(SQLDelete(SQLGetID(delCall.email)))
-            else -> call.respond(HttpStatusCode.BadRequest)
-        }
+        call.respond(SQLDelete(SQLGetID(delCall.email)))
     }
 }
 
 fun Route.EditUser() {
     post<lUpdateData> { editCall ->
+        call.respond(SQLUpdate(editCall.userID,editCall.dataType,editCall.newValue))
+    }
+    post<lUpdateMe> { editCall ->
         val session = call.sessions.get<SessionData>() ?: SessionData(0, "Guest")
-        if (editCall.userID==session.userID) {
-            when(editCall.datatype){
-                "email" -> if ((User.haveFullAccess || editCall.userID==session.userID)) {
-                    call.respond(SQLEmailUpdate(editCall.userID, editCall.newData))
-                } else call.respond(HttpStatusCode.BadRequest)
-                "role" -> if (User.haveFullAccess) {
-                    call.respond(SQLRoleUpdate(editCall.userID,editCall.newData))
-                } else call.respond(HttpStatusCode.BadRequest)
-                "username" -> call.respond(SQLUserNameUpdate(editCall.userID,editCall.newData))
-                "password" -> call.respond(SQLPassUpdate(editCall.userID, editCall.newData))
-                "avatarURL" -> call.respond(SQLAvatarUpdate(editCall.userID,editCall.newData))
-            }
-        }
+        call.respond(SQLUpdate(session.userID,editCall.dataType,editCall.newValue))
     }
 }

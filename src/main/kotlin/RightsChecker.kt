@@ -18,48 +18,46 @@ data class UserRights(
 
 var User = UserRights(false, listOf(""), listOf(""), listOf(""), listOf(""),false,false)
 class AccessErrorException(override var message:String): Exception(message)
+class UnauthorizedException(override var message:String): Exception(message)
 class RightsChecker() {
-    class Configuration {
-        var prop = "value"
-    }
+    class Configuration {}
     companion object Feature : ApplicationFeature<ApplicationCallPipeline, Configuration, RightsChecker> {
         override val key = AttributeKey<RightsChecker>("RightsChecker")
         override fun install(pipeline: ApplicationCallPipeline, configure: Configuration.() -> Unit): RightsChecker {
-            val configuration = RightsChecker.Configuration().apply(configure)
             val feature = RightsChecker()
 
             pipeline.intercept(ApplicationCallPipeline.Infrastructure) {
 
                 val session = call.sessions.get<SessionData>() ?: SessionData(0, "Guest")
-                println(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME) + " User ${session.userID}, ${session.role}, connected")
+                println(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME) + " ${session.role} ${session.userID}: connected")
                 when (session.role) {
                     "Guest" -> User = UserRights(
                             haveFullAccess = false,
-                            accessToGET = listOf(""),
-                            accessToPUT = listOf(""),
+                            accessToGET = listOf("/users/[page]/[limit]","/users/[email]"),
+                            accessToPUT = listOf("/users/[email]/[username]/[password]"),
                             accessToPOST = listOf("/login/[email]/[password]"),
                             accessToDELETE = listOf(""),
                             canBan = false,
                             canMute = false)
                     "User" -> User = UserRights(
                             haveFullAccess = false,
-                            accessToGET = listOf("/logout"),
+                            accessToGET = listOf("/logout","/profile","/users/[page]/[limit]","/users/[email]"),
                             accessToPUT = listOf(""),
-                            accessToPOST = listOf(""),
+                            accessToPOST = listOf("/profile/[dataType]/[newValue]"),
                             accessToDELETE = listOf(""),
                             canBan = false,
                             canMute = false)
                     "Moder" -> User = UserRights(
                             haveFullAccess = false,
-                            accessToGET = listOf("/logout"),
+                            accessToGET = listOf("/logout","/profile","/users/[page]/[limit]","/users/[email]"),
                             accessToPUT = listOf(""),
-                            accessToPOST = listOf(""),
+                            accessToPOST = listOf("/users/[userID]/[dataType]/[newValue]","/profile/[dataType]/[newValue]"),
                             accessToDELETE = listOf(""),
                             canBan = false,
                             canMute = true)
                     "Admin" -> User = UserRights(
                             haveFullAccess = true,
-                            accessToGET = listOf("/logout"),
+                            accessToGET = listOf(""),
                             accessToPUT = listOf(""),
                             accessToPOST = listOf(""),
                             accessToDELETE = listOf(""),
@@ -70,20 +68,36 @@ class RightsChecker() {
                     var RouteString = call.route.parent.toString()
                     when(call.request.local.method.value) {
                         "GET" -> if (User.accessToGET.contains(RouteString)||User.haveFullAccess) {
-                                println("USER CAN GET "+RouteString)
-                                } else {throw AccessErrorException("USER CAN NOT GET "+RouteString)}
+                                println(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME) +
+                                        " ${session.role} ${session.userID}: GET "+RouteString)
+                                } else {
+                                println(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME) +
+                                        " ${session.role} ${session.userID}: GET "+RouteString+" [ERROR]")
+                                throw AccessErrorException(" ${session.role} ${session.userID}: GET "+RouteString+" [ERROR]")}
 
                         "PUT" -> if (User.accessToPUT.contains(RouteString)||User.haveFullAccess) {
-                                println("USER CAN PUT "+RouteString)
-                                } else {throw AccessErrorException("USER CAN NOT PUT "+RouteString)}
+                                println(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME) +
+                                        " ${session.role} ${session.userID}: PUT "+RouteString)
+                                } else {
+                                println(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME) +
+                                        " ${session.role} ${session.userID}: PUT "+RouteString+" [ERROR]")
+                                throw AccessErrorException(" ${session.role} ${session.userID}: PUT "+RouteString+" [ERROR]")}
 
                         "POST" -> if (User.accessToPOST.contains(RouteString)||User.haveFullAccess) {
-                                println("USER CAN POST "+RouteString)
-                                } else {throw AccessErrorException("USER CAN NOT POST "+RouteString)}
+                                println(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME) +
+                                        " ${session.role} ${session.userID}: POST "+RouteString)
+                                } else {
+                                println(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME) +
+                                        " ${session.role} ${session.userID}: POST "+RouteString+" [ERROR]")
+                                throw AccessErrorException(" ${session.role} ${session.userID}: POST "+RouteString+" [ERROR]")}
 
                         "DELETE" -> if (User.accessToDELETE.contains(RouteString)||User.haveFullAccess) {
-                                println("USER CAN DELETE ")
-                                } else {throw AccessErrorException("USER CAN NOT DELETE "+RouteString)}
+                                println(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME) +
+                                        " ${session.role} ${session.userID}: DELETE "+RouteString)
+                                } else {
+                                println(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME) +
+                                        " ${session.role} ${session.userID}: DELETE "+RouteString+" [ERROR]")
+                                throw AccessErrorException(" ${session.role} ${session.userID}: DELETE "+RouteString+" [ERROR]")}
                     }
                 }
             }

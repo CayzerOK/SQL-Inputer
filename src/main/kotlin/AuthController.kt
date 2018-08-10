@@ -7,11 +7,8 @@ import io.ktor.sessions.*
 
 fun Route.LogoutUser() {
     get("/logout") {
-        val session = call.sessions.get<SessionData>() ?: SessionData(0,"Guest")
-        if (session.userID == 0){
-            call.sessions.clear<SessionData>()
-            call.respond(HttpStatusCode.OK)
-        } else call.respond(HttpStatusCode.Unauthorized)
+        call.sessions.clear<SessionData>()
+        call.respond(HttpStatusCode.OK)
     }
 }
 fun Route.LoginUser() {
@@ -21,7 +18,6 @@ fun Route.LoginUser() {
         if (checkPass(userData.userID, loginCall.password)) {
             call.sessions.set(session.copy(userData.userID,userData.role))
             call.respond(HttpStatusCode.OK)
-            println()
         } else {
             call.respond(HttpStatusCode.BadRequest)
         }

@@ -30,9 +30,10 @@ object user_list : Table() {
 
 @Location("/login") data class lLoginData(val email:String, val password: String)
 @Location("/users") data class lGetUsers(val page:Int, val limit:Int)
-@Location("/users/user") data class lUser(val email: String)
-@Location("/users/") data class lUpdateData(val userID: Int, val datatype:String, val newData:String)
+@Location("/users/") data class lUser(val email: String)
+@Location("/users/") data class lUpdateData(val userID: Int, val dataType:List<String>, val newValue:List<String>)
 @Location("/users/") data class lRegData(val email: String, val username:String, val password:String)
+@Location("/profile") data class lUpdateMe(val dataType:List<String>, val newValue:List<String>)
 
 
 data class SessionData(val userID: Int, val role:String = "Guest")
@@ -47,7 +48,8 @@ fun Application.main() {
             cookie.path = "/"
         }
     }
-    install(StatusPages){
+    install(DataConversion)
+    install(StatusPages) {
         exception<AccessErrorException> { cause ->
             call.respond(HttpStatusCode.BadRequest)
         }
