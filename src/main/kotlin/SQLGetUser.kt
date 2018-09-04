@@ -1,15 +1,17 @@
+
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
 fun SQLGetID(email: String): Int {
     Database.connect(baseURL, baseDriver, baseRoot, basePass)
-    var user_id = 0
+    var result = 0
     transaction {
-        user_list.select { user_list.userEmail eq email }.forEach {
-            user_id = it[user_list.userID]
+        val content = UserData.find {UserList.userEmail eq email}
+        for (user in content) {
+            result = user.userID
         }
     }
-    return user_id
+    return result
 }
 
 data class UserPublicData(val userEmail:String,
@@ -29,49 +31,28 @@ fun SQLGetUserData(userID:Int): UserPublicData {
     Database.connect(baseURL, baseDriver, baseRoot, basePass)
     var result = UserPublicData("","","","")
     transaction {
-        user_list.select { user_list.userID eq userID }.forEach {
-            result = UserPublicData(
-                    it[user_list.userEmail],
-                    it[user_list.userName],
-                    it[user_list.avatarURL],
-                    it[user_list.role])
+        val content = UserData.findById(userID)
+        result = UserPublicData(
+                content!!.userEmail,
+                content!!.userName,
+                content!!.avatarURL,
+                content!!.userRole)
         }
-    }
     return result
 }
 fun SQLGetFullUserData(userID:Int): UserFullData {
     Database.connect(baseURL, baseDriver, baseRoot, basePass)
     var result = UserFullData(0,"","","","",false, false)
     transaction {
-        user_list.select { user_list.userID eq userID }.forEach {
-            result = UserFullData(
-                    it[user_list.userID],
-                    it[user_list.userEmail],
-                    it[user_list.userName],
-                    it[user_list.avatarURL],
-                    it[user_list.role],
-                    it[user_list.ban],
-                    it[user_list.mute])
-        }
-    }
-    return result
-}
-
-
-fun SQLGetFullData(userID:Int): UserFullData {
-    Database.connect(baseURL, baseDriver, baseRoot, basePass)
-    var result = UserFullData(0,"","","","",false, false)
-    transaction {
-        user_list.select { user_list.userID eq userID }.forEach {
-            result = UserFullData(
-                    it[user_list.userID],
-                    it[user_list.userEmail],
-                    it[user_list.userName],
-                    it[user_list.avatarURL],
-                    it[user_list.role],
-                    it[user_list.ban],
-                    it[user_list.mute])
-        }
+        val content = UserData.findById(userID)
+        result = UserFullData(
+                content!!.userID,
+                content!!.userEmail,
+                content!!.userName,
+                content!!.avatarURL,
+                content!!.userRole,
+                content!!.ban,
+                content!!.mute)
     }
     return result
 }
@@ -81,30 +62,31 @@ fun SQLGetUsers(page:Int, limit:Int): MutableList<UserPublicData> {
     Database.connect(baseURL, baseDriver, baseRoot, basePass)
     val userlist = mutableListOf<UserPublicData>()
     transaction {
-        for (users in user_list.selectAll().limit(limit, limit*page-limit-1)) {
+        val content = UserData.all().limit(limit, limit*page-limit-1)
+        for (users in content) {
             userlist.add(UserPublicData(
-                    users[user_list.userEmail],
-                    users[user_list.userName],
-                    users[user_list.avatarURL],
-                    users[user_list.role]))
+                    users.userEmail,
+                    users.userName,
+                    users.avatarURL,
+                    users.userRole))
         }
     }
     return userlist
 }
 
 fun SQLGetFullUsers(page:Int, limit:Int): MutableList<UserFullData> {
-    Database.connect(baseURL, baseDriver, baseRoot, basePass)
     val userlist = mutableListOf<UserFullData>()
     transaction {
-        for (users in user_list.selectAll().limit(limit, limit*page-limit-1)) {
+        val content = UserData.all().limit(limit, limit*page-limit-1)
+        for (users in content) {
             userlist.add(UserFullData(
-                    users[user_list.userID],
-                    users[user_list.userEmail],
-                    users[user_list.userName],
-                    users[user_list.avatarURL],
-                    users[user_list.role],
-                    users[user_list.ban],
-                    users[user_list.ban]))
+                    users.userID,
+                    users.userEmail,
+                    users.userName,
+                    users.avatarURL,
+                    users.userRole,
+                    users.ban,
+                    users.mute))
         }
     }
     return userlist

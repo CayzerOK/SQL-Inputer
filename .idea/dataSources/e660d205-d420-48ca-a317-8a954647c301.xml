@@ -1110,8 +1110,8 @@
       <Charset>utf8mb4</Charset>
       <DefaultForCharset>0</DefaultForCharset>
     </collation>
-    <table id="279" parent="7" name="user_list"/>
-    <column id="280" parent="279" name="user_id">
+    <table id="279" parent="7" name="userlist"/>
+    <column id="280" parent="279" name="id">
       <Position>1</Position>
       <DataType>int(11)|0s</DataType>
       <NotNull>1</NotNull>
@@ -1177,7 +1177,7 @@
       <ColumnKind>normal</ColumnKind>
     </column>
     <index id="290" parent="279" name="user_id_UNIQUE">
-      <ColNames>user_id</ColNames>
+      <ColNames>id</ColNames>
       <Unique>1</Unique>
       <Type>btree</Type>
     </index>
@@ -1188,11 +1188,11 @@
     </index>
     <key id="292" parent="279" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
-      <ColNames>user_id</ColNames>
+      <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
     <key id="293" parent="279" name="user_id_UNIQUE">
-      <ColNames>user_id</ColNames>
+      <ColNames>id</ColNames>
       <UnderlyingIndexName>user_id_UNIQUE</UnderlyingIndexName>
     </key>
     <key id="294" parent="279" name="user_email_UNIQUE">

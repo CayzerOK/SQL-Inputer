@@ -18,7 +18,6 @@ data class UserRights(
 
 var User = UserRights(false, listOf(""), listOf(""), listOf(""), listOf(""),false,false)
 class AccessErrorException(override var message:String): Exception(message)
-class UnauthorizedException(override var message:String): Exception(message)
 class RightsChecker() {
     class Configuration {}
     companion object Feature : ApplicationFeature<ApplicationCallPipeline, Configuration, RightsChecker> {

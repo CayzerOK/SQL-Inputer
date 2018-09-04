@@ -7,7 +7,8 @@ import io.ktor.locations.Locations
 import io.ktor.response.respond
 import io.ktor.routing.*
 import io.ktor.sessions.*
-import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.dao.*
+import org.jetbrains.exposed.sql.*
 import java.text.DateFormat
 
 val baseURL:String = "jdbc:mysql://localhost:3306/user_base?useUnicode=true&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC"
@@ -15,18 +16,34 @@ val baseDriver:String = "com.mysql.cj.jdbc.Driver"
 val baseRoot:String = "root"
 val basePass:String = "3CE0DE8545098E16CDB"
 
-object user_list : Table() {
-    val userID = integer("user_id").primaryKey().autoIncrement().uniqueIndex()
-    var userEmail = varchar("user_email",45).uniqueIndex()
-    val userName = varchar("user_name",45)
-    val userPass = varchar("user_pass",255)
-    val avatarURL = varchar("user_url",255).default("http://nvsdushor.ru/wp-content/uploads/2018/02/шаблон3.jpg")
-    val baseSalt1 = varchar("salt1", 45)
-    val baseSalt2 = varchar("salt2", 45)
-    val role = varchar("role", 10).default("User")
-    val ban = bool("ban").default(false)
-    val mute = bool("mute").default(false)
+object UserList : IntIdTable() {
+    val userID:Column<Int> = integer("id").primaryKey().autoIncrement().uniqueIndex()
+    val userEmail: Column<String> = varchar("user_email",45).uniqueIndex()
+    val userName: Column<String> = varchar("user_name",45)
+    val userPass: Column<String> = varchar("user_pass",255)
+    val avatarURL: Column<String> = varchar("user_url",255).default("http://nvsdushor.ru/wp-content/uploads/2018/02/шаблон3.jpg")
+    val baseSalt1: Column<String> = varchar("salt1", 45)
+    val baseSalt2: Column<String> = varchar("salt2", 45)
+    val role: Column<String> = varchar("role", 10).default("User")
+    val ban: Column<Boolean> = bool("ban").default(false)
+    val mute: Column<Boolean> = bool("mute").default(false)
 }
+
+class UserData(id: EntityID<Int>): IntEntity(id) {
+    companion object : IntEntityClass<UserData>(UserList)
+
+    var userID by UserList.userID
+    var userEmail by UserList.userEmail
+    var userName by UserList.userName
+    var userPass by UserList.userPass
+    var avatarURL by UserList.avatarURL
+    var baseSalt1 by UserList.baseSalt1
+    var baseSalt2 by UserList.baseSalt2
+    var userRole by UserList.role
+    var ban by UserList.ban
+    var mute by UserList.mute
+}
+
 
 @Location("/login") data class lLoginData(val email:String, val password: String)
 @Location("/users") data class lGetUsers(val page:Int, val limit:Int)
@@ -70,15 +87,5 @@ fun Application.main() {
         EditUser()
         Users()
     }
-
+    Database.connect(baseURL,baseDriver, baseRoot, basePass)
 }
-
-
-
-
-
-
-
-
-
-

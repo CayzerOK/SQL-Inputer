@@ -14,7 +14,7 @@ fun Route.LogoutUser() {
 fun Route.LoginUser() {
     post<lLoginData> { loginCall ->
         val session = call.sessions.get<SessionData>() ?: SessionData(0,"Guest")
-        val userData = SQLGetFullData(SQLGetID(loginCall.email))
+        val userData = SQLGetFullUserData(SQLGetID(loginCall.email))
         if (checkPass(userData.userID, loginCall.password)) {
             call.sessions.set(session.copy(userData.userID,userData.role))
             call.respond(HttpStatusCode.OK)
