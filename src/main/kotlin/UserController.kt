@@ -1,11 +1,8 @@
 import io.ktor.application.*
-import io.ktor.html.each
-import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.locations.*
 import io.ktor.response.respond
 import io.ktor.routing.Route
-import io.ktor.routing.accept
 import io.ktor.sessions.*
 
 fun Route.AddUser() {

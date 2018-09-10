@@ -1,14 +1,12 @@
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.dao.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-fun checkPass(userID:Int, pass:String): Boolean {
+fun checkPass(userID: Int?, pass:String): Boolean {
     var result = false
         transaction {
             try {
-                val target = UserData.findById(userID)
+                val target = UserData.findById(userID!!)
                     val basehash = target?.userPass
                     val basesalt1 = target!!.baseSalt1
                     val basesalt2 = target!!.baseSalt2
@@ -17,7 +15,7 @@ fun checkPass(userID:Int, pass:String): Boolean {
                         println(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME)+" User $userID: Password checked")
                     } else {
                         result = false
-                        println(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME)+" User $userID: Password incorrect")
+                        println(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME)+" User $userID: Wrong login data")
                     }
             }catch (e:Exception){
                 result = false

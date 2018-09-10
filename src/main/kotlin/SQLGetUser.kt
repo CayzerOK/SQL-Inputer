@@ -1,5 +1,4 @@
 
-import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
 fun SQLGetID(email: String): Int {
@@ -16,40 +15,42 @@ fun SQLGetID(email: String): Int {
 data class UserPublicData(val userEmail:String,
                           val userName:String,
                           val avatarURL:String,
-                          val role: String)
+                          val role: String,
+                          val mute:Boolean)
 
-data class UserFullData(val userID: Int,
-                        val user_email:String,
-                        val user_name:String,
-                        val avatar_url:String,
-                        val role:String,
-                        val ban:Boolean,
-                        val mute:Boolean)
+data class UserFullData(val userID: Int?,
+                        val userEmail: String?,
+                        val userName: String?,
+                        val avatarURL: String?,
+                        val role: String?,
+                        val ban: Boolean?,
+                        val mute: Boolean?)
 
-fun SQLGetUserData(userID:Int): UserPublicData {
-    var result = UserPublicData("","","","")
+fun SQLGetUserData(userID: Int?): UserPublicData {
+    var result = UserPublicData("","","","", false)
     transaction {
-        val content = UserData.findById(userID)
+        val content = UserData.findById(userID!!)
         result = UserPublicData(
                 content!!.userEmail,
                 content!!.userName,
                 content!!.avatarURL,
-                content!!.userRole)
+                content!!.userRole,
+                content!!.mute)
         }
     return result
 }
-fun SQLGetFullUserData(userID:Int): UserFullData {
+fun SQLGetFullUserData(userID: Int?): UserFullData {
     var result = UserFullData(0,"","","","",false, false)
     transaction {
-        val content = UserData.findById(userID)
+        val content = UserData.findById(userID!!)
         result = UserFullData(
-                content!!.userID,
-                content!!.userEmail,
-                content!!.userName,
-                content!!.avatarURL,
-                content!!.userRole,
-                content!!.ban,
-                content!!.mute)
+                content?.userID,
+                content?.userEmail,
+                content?.userName,
+                content?.avatarURL,
+                content?.userRole,
+                content?.ban,
+                content?.mute)
     }
     return result
 }
@@ -64,7 +65,8 @@ fun SQLGetUsers(page:Int, limit:Int): MutableList<UserPublicData> {
                     users.userEmail,
                     users.userName,
                     users.avatarURL,
-                    users.userRole))
+                    users.userRole,
+                    users.mute))
         }
     }
     return userlist

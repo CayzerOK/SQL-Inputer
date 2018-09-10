@@ -1,12 +1,4 @@
-import io.ktor.application.*
-import io.ktor.locations.*
-import io.ktor.request.receiveParameters
-import io.ktor.routing.*
-import io.ktor.sessions.*
-import io.ktor.util.*
-import java.time.*
-import java.time.format.DateTimeFormatter
-
+/**
 data class UserRights(
         val haveFullAccess:Boolean,
         val accessToGET:List<String>,
@@ -17,16 +9,16 @@ data class UserRights(
         val canMute:Boolean)
 
 var User = UserRights(false, listOf(""), listOf(""), listOf(""), listOf(""),false,false)
+
 class AccessErrorException(override var message:String): Exception(message)
-class RightsChecker() {
-    class Configuration {}
+
+class RightsChecker {
+    class Configuration
     companion object Feature : ApplicationFeature<ApplicationCallPipeline, Configuration, RightsChecker> {
         override val key = AttributeKey<RightsChecker>("RightsChecker")
         override fun install(pipeline: ApplicationCallPipeline, configure: Configuration.() -> Unit): RightsChecker {
             val feature = RightsChecker()
-
             pipeline.intercept(ApplicationCallPipeline.Infrastructure) {
-
                 val session = call.sessions.get<SessionData>() ?: SessionData(0, "Guest")
                 println(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME) + " ${session.role} ${session.userID}: connected")
                 when (session.role) {
@@ -63,7 +55,9 @@ class RightsChecker() {
                             canBan = true,
                             canMute = true)
                 }
-                application.environment.monitor.subscribe(Routing.RoutingCallStarted) { call: RoutingApplicationCall ->
+
+                application.environment.monitor.subscribe(Routing.RoutingCallStarted) {
+                    val call:RoutingApplicationCall = it
                     var RouteString = call.route.parent.toString()
                     when(call.request.local.method.value) {
                         "GET" -> if (User.accessToGET.contains(RouteString)||User.haveFullAccess) {
@@ -96,7 +90,8 @@ class RightsChecker() {
                                 } else {
                                 println(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME) +
                                         " ${session.role} ${session.userID}: DELETE "+RouteString+" [ERROR]")
-                                throw AccessErrorException(" ${session.role} ${session.userID}: DELETE "+RouteString+" [ERROR]")}
+                            throw AccessErrorException(" ${session.role} ${session.userID}: DELETE "+RouteString+" [ERROR]")
+                        }
                     }
                 }
             }
@@ -104,3 +99,4 @@ class RightsChecker() {
         }
     }
 }
+        */

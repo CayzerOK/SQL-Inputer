@@ -31,7 +31,6 @@ object UserList : IntIdTable() {
 
 class UserData(id: EntityID<Int>): IntEntity(id) {
     companion object : IntEntityClass<UserData>(UserList)
-
     var userID by UserList.userID
     var userEmail by UserList.userEmail
     var userName by UserList.userName
@@ -44,7 +43,6 @@ class UserData(id: EntityID<Int>): IntEntity(id) {
     var mute by UserList.mute
 }
 
-
 @Location("/login") data class lLoginData(val email:String, val password: String)
 @Location("/users") data class lGetUsers(val page:Int, val limit:Int)
 @Location("/users/") data class lUser(val email: String)
@@ -52,26 +50,44 @@ class UserData(id: EntityID<Int>): IntEntity(id) {
 @Location("/users/") data class lRegData(val email: String, val username:String, val password:String)
 @Location("/profile") data class lUpdateMe(val dataType:List<String>, val newValue:List<String>)
 
-
-data class SessionData(val userID: Int, val role:String = "Guest")
+data class SessionData(val userID: Int? = 0, val role:String = "Guest")
 
 fun Application.main() {
+    Database.connect(baseURL,baseDriver, baseRoot, basePass)
     install(Routing)
     install(DefaultHeaders)
     install(Compression)
     install(CallLogging)
     install(Sessions) {
-        cookie<SessionData>("SESSION_FEATURE_SESSION_ID", SessionStorageMemory()) {
+        cookie<SessionData>("SESSION_ID", SessionStorageMemory()) {
             cookie.path = "/"
         }
     }
     install(DataConversion)
     install(StatusPages) {
-        exception<AccessErrorException> { cause ->
-            call.respond(HttpStatusCode.BadRequest)
+
+        exception<GETException> { exception ->
+            when(exception.message) {
+                "/logout" -> call.respond(HttpStatusCode.Unauthorized)
+                "/profile" -> call.respond(HttpStatusCode.Unauthorized)
+                else -> call.respond(HttpStatusCode.BadRequest)
+            }
+        }
+        exception<PUTException> { exception ->
+            when(exception.message) {
+                "/users/[email]/[username]/[password]" -> call.respond(HttpStatusCode(422, "Unprocessable Entity"))
+                else -> call.respond(HttpStatusCode.BadRequest)
+            }
+        }
+        exception<POSTException> { exception ->
+            when(exception.message) {
+                "/login" -> call.respond(HttpStatusCode(422, "Unprocessable Entity"))
+                "/users/[userID]/[dataType]/[newValue]" -> call.respond(HttpStatusCode.Forbidden)
+                "/profile/[dataType]/[newValue]" -> call.respond(HttpStatusCode.Unauthorized)
+                else -> call.respond(HttpStatusCode.BadRequest)
+            }
         }
     }
-    install(RightsChecker)
     install(Locations)
     install(ContentNegotiation) {
         gson {
@@ -86,6 +102,6 @@ fun Application.main() {
         DeleteUser()
         EditUser()
         Users()
+        CheckRights()
     }
-    Database.connect(baseURL,baseDriver, baseRoot, basePass)
 }

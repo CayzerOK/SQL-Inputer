@@ -4,31 +4,42 @@ import io.ktor.locations.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.sessions.*
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 fun Route.LogoutUser() {
     get("/logout") {
+        val session = call.sessions.get<SessionData>() ?: SessionData(0, "Guest")
+        println(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME) +
+                " ${session.role} ${session.userID}: logout")
         call.sessions.clear<SessionData>()
-        call.respond(HttpStatusCode.OK)
+        when {
+            User.haveFullAccess -> call.respond(SQLGetFullUserData(session.userID))
+            !User.haveFullAccess -> call.respond(SQLGetUserData(session.userID))
+        }
     }
 }
 fun Route.LoginUser() {
     post<lLoginData> { loginCall ->
-        val session = call.sessions.get<SessionData>() ?: SessionData(0,"Guest")
         val userData = SQLGetFullUserData(SQLGetID(loginCall.email))
         if (checkPass(userData.userID, loginCall.password)) {
-            call.sessions.set(session.copy(userData.userID,userData.role))
+            call.sessions.set(SessionData(userData.userID, userData.role!!))
+            val session = call.sessions.get<SessionData>() ?: SessionData(0, "Guest")
             call.respond(HttpStatusCode.OK)
+            println(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME) +
+                    " ${session.role} ${session.userID}: login")
         } else {
             call.respond(HttpStatusCode.BadRequest)
+            println(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME) +
+                    "Guest 0: login denied")
         }
     }
 }
 fun Route.Users() {
-
     get("/profile") {
-        val session = call.sessions.get<SessionData>() ?: SessionData(0,"Guest")
+        val session = call.sessions.get<SessionData>() ?: SessionData(0, "Guest")
         when {
-            session.userID == 0 -> call.respond(HttpStatusCode.Unauthorized)
+            session.userID == 0 -> call.respond(HttpStatusCode.Unauthorized )
             User.haveFullAccess -> call.respond(SQLGetFullUserData(session.userID))
             !User.haveFullAccess -> call.respond(SQLGetUserData(session.userID))
         }

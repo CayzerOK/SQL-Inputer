@@ -1,11 +1,9 @@
 import io.ktor.http.HttpStatusCode
-import org.jetbrains.exposed.dao.*
-import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-fun SQLUpdate(userID:Int, dataType:List<String>, newValue:List<String>): HttpStatusCode {
+fun SQLUpdate(userID: Int?, dataType:List<String>, newValue:List<String>): HttpStatusCode {
     var result = HttpStatusCode.OK
     var newEmail=""
     var newUserName=""
@@ -33,7 +31,7 @@ fun SQLUpdate(userID:Int, dataType:List<String>, newValue:List<String>): HttpSta
     } catch (e:Exception) {result=HttpStatusCode.BadRequest}
     try {
         transaction {
-            val target = UserData.findById(userID)
+            val target = UserData.findById(userID!!)
                 if(!newEmail.equals("")){target!!.userEmail = newEmail}
                 if(!newRole.equals("")){target!!.userRole = newRole}
                 if(!newUserName.equals("")){target!!.userName = newUserName}
