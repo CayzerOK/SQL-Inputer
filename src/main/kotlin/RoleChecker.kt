@@ -1,5 +1,3 @@
-import io.ktor.application.application
-import io.ktor.application.call
 import io.ktor.routing.*
 import io.ktor.sessions.get
 import io.ktor.sessions.sessions
@@ -15,18 +13,19 @@ data class UserRights(
         val canBan:Boolean,
         val canMute:Boolean)
 
-var User = UserRights(false, listOf(""), listOf(""), listOf(""), listOf(""),false,false)
+var user = UserRights(false, listOf(""), listOf(""), listOf(""), listOf(""),false,false)
 
 class GETException(override var message:String): Exception(message)
 class POSTException(override var message:String): Exception(message)
 class PUTException(override var message:String): Exception(message)
 class DELException(override var message:String): Exception(message)
+class CallException(var code:Int,override var message: String):Exception(message)
 
 fun Route.CheckRights() {
     application.environment.monitor.subscribe(Routing.RoutingCallStarted) { call: RoutingApplicationCall ->
         val session = call.sessions.get<SessionData>() ?: SessionData(0, "Guest")
         when (session.role) {
-            "Guest" -> User = UserRights(
+            "Guest" -> user = UserRights(
                     haveFullAccess = false,
                     accessToGET = listOf("/users/[page]/[limit]", "/users/[email]"),
                     accessToPUT = listOf("/users/[email]/[username]/[password]"),
@@ -34,23 +33,23 @@ fun Route.CheckRights() {
                     accessToDELETE = listOf(""),
                     canBan = false,
                     canMute = false)
-            "User" -> User = UserRights(
+            "User","Puppet" -> user = UserRights(
                     haveFullAccess = false,
                     accessToGET = listOf("/logout", "/profile", "/users/[page]/[limit]", "/users/[email]"),
                     accessToPUT = listOf(""),
                     accessToPOST = listOf("/profile/[dataType]/[newValue]"),
-                    accessToDELETE = listOf(""),
+                    accessToDELETE = listOf("/profile"),
                     canBan = false,
                     canMute = false)
-            "Moder" -> User = UserRights(
+            "Moder" -> user = UserRights(
                     haveFullAccess = false,
                     accessToGET = listOf("/logout", "/profile", "/users/[page]/[limit]", "/users/[email]"),
                     accessToPUT = listOf(""),
                     accessToPOST = listOf("/users/[userID]/[dataType]/[newValue]", "/profile/[dataType]/[newValue]"),
-                    accessToDELETE = listOf(""),
+                    accessToDELETE = listOf("/profile"),
                     canBan = false,
                     canMute = true)
-            "Admin" -> User = UserRights(
+            "Admin", "AdminPuppet" -> user = UserRights(
                     haveFullAccess = true,
                     accessToGET = listOf(""),
                     accessToPUT = listOf(""),
@@ -61,7 +60,7 @@ fun Route.CheckRights() {
         }
         var RouteString = call.route.parent.toString()
         when (call.request.local.method.value) {
-            "GET" -> if (User.accessToGET.contains(RouteString) || User.haveFullAccess) {
+            "GET" -> if (user.accessToGET.contains(RouteString) || user.haveFullAccess) {
                 println(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME) +
                         " ${session.role} ${session.userID}: GET " + RouteString)
             } else {
@@ -70,7 +69,7 @@ fun Route.CheckRights() {
                 throw GETException(call.route.parent.toString())
             }
 
-            "PUT" -> if (User.accessToPUT.contains(RouteString) || User.haveFullAccess) {
+            "PUT" -> if (user.accessToPUT.contains(RouteString) || user.haveFullAccess) {
                 println(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME) +
                         " ${session.role} ${session.userID}: PUT " + RouteString)
             } else {
@@ -79,7 +78,7 @@ fun Route.CheckRights() {
                 throw PUTException(call.route.parent.toString())
             }
 
-            "POST" -> if (User.accessToPOST.contains(RouteString) || User.haveFullAccess) {
+            "POST" -> if (user.accessToPOST.contains(RouteString) || user.haveFullAccess) {
                 println(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME) +
                         " ${session.role} ${session.userID}: POST " + RouteString)
             } else {
@@ -88,7 +87,7 @@ fun Route.CheckRights() {
                 throw POSTException(call.route.parent.toString())
             }
 
-            "DELETE" -> if (User.accessToDELETE.contains(RouteString) || User.haveFullAccess) {
+            "DELETE" -> if (user.accessToDELETE.contains(RouteString) || user.haveFullAccess) {
                 println(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME) +
                         " ${session.role} ${session.userID}: DELETE " + RouteString)
             } else {

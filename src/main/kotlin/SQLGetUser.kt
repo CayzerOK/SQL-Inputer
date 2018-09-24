@@ -1,4 +1,5 @@
 
+import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.transactions.transaction
 
 fun SQLGetID(email: String): Int {
@@ -8,36 +9,38 @@ fun SQLGetID(email: String): Int {
         for (user in content) {
             result = user.userID
         }
+        if (result == 0) {throw CallException(404, "User not found")}
     }
     return result
 }
 
-data class UserPublicData(val userEmail:String,
-                          val userName:String,
-                          val avatarURL:String,
-                          val role: String,
-                          val mute:Boolean)
+data class UserPublicData(val userEmail: String? =null,
+                          val userName: String? =null,
+                          val avatarURL: String? =null,
+                          val role: String? =null,
+                          val mute: Boolean? =null)
 
-data class UserFullData(val userID: Int?,
-                        val userEmail: String?,
-                        val userName: String?,
-                        val avatarURL: String?,
-                        val role: String?,
-                        val ban: Boolean?,
-                        val mute: Boolean?)
+data class UserFullData(val userID: Int?=null,
+                        val userEmail: String?=null,
+                        val userName: String?=null,
+                        val avatarURL: String?=null,
+                        val role: String?=null,
+                        val ban: Boolean?=null,
+                        val mute: Boolean?=null)
 
-fun SQLGetUserData(userID: Int?): UserPublicData {
-    var result = UserPublicData("","","","", false)
+fun SQLGetUserData(userID: Int): UserPublicData {
+    var result: UserPublicData? = null
     transaction {
-        val content = UserData.findById(userID!!)
+        val content = UserData.findById(userID)
         result = UserPublicData(
                 content!!.userEmail,
-                content!!.userName,
-                content!!.avatarURL,
-                content!!.userRole,
-                content!!.mute)
+                content.userName,
+                content.avatarURL,
+                content.userRole,
+                content.mute)
         }
-    return result
+    if (result?.userName == null) {throw CallException(404, "User not found")}
+    return result!!
 }
 fun SQLGetFullUserData(userID: Int?): UserFullData {
     var result = UserFullData(0,"","","","",false, false)
@@ -52,14 +55,21 @@ fun SQLGetFullUserData(userID: Int?): UserFullData {
                 content?.ban,
                 content?.mute)
     }
+    if (result.userName == null) {throw CallException(404, "User not found")}
     return result
 }
 
 
 fun SQLGetUsers(page:Int, limit:Int): MutableList<UserPublicData> {
-    val userlist = mutableListOf<UserPublicData>()
+
+    if(limit<=0) throw CallException(400, "Wrong Sintax(limit<=0)")
+    if(page<=0) throw CallException(400, "Wrong Sintax(page<=0)")
+        val userlist = mutableListOf<UserPublicData>()
     transaction {
-        val content = UserData.all().limit(limit, limit*page-limit-1)
+        val content = UserData.find{
+            UserList.role eq "User" or
+                (UserList.role eq "Moder") or
+                (UserList.role eq "Admin")}.limit(limit,page*limit-limit)
         for (users in content) {
             userlist.add(UserPublicData(
                     users.userEmail,
@@ -68,14 +78,17 @@ fun SQLGetUsers(page:Int, limit:Int): MutableList<UserPublicData> {
                     users.userRole,
                     users.mute))
         }
+        if(userlist.isEmpty()) throw CallException(404,"Out of list range")
     }
     return userlist
 }
 
 fun SQLGetFullUsers(page:Int, limit:Int): MutableList<UserFullData> {
+    if(limit<=0) throw CallException(400, "Wrong Sintax(limit<=0)")
+    if(page<=0) throw CallException(400, "Wrong Sintax(page<=0)")
     val userlist = mutableListOf<UserFullData>()
     transaction {
-        val content = UserData.all().limit(limit, limit*page-limit-1)
+        val content = UserData.all().limit(limit, page*limit-limit)
         for (users in content) {
             userlist.add(UserFullData(
                     users.userID,
@@ -87,5 +100,6 @@ fun SQLGetFullUsers(page:Int, limit:Int): MutableList<UserFullData> {
                     users.mute))
         }
     }
+    if(userlist.isEmpty()) throw CallException(404,"Out of list range")
     return userlist
 }

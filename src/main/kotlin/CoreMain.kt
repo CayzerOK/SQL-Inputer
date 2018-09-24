@@ -9,6 +9,7 @@ import io.ktor.routing.*
 import io.ktor.sessions.*
 import org.jetbrains.exposed.dao.*
 import org.jetbrains.exposed.sql.*
+import java.sql.SQLSyntaxErrorException
 import java.text.DateFormat
 
 val baseURL:String = "jdbc:mysql://localhost:3306/user_base?useUnicode=true&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC"
@@ -51,7 +52,6 @@ class UserData(id: EntityID<Int>): IntEntity(id) {
 @Location("/profile") data class lUpdateMe(val dataType:List<String>, val newValue:List<String>)
 
 data class SessionData(val userID: Int? = 0, val role:String = "Guest")
-
 fun Application.main() {
     Database.connect(baseURL,baseDriver, baseRoot, basePass)
     install(Routing)
@@ -65,26 +65,31 @@ fun Application.main() {
     }
     install(DataConversion)
     install(StatusPages) {
-
+        exception<CallException> {exception ->
+            call.respond(HttpStatusCode(exception.code,exception.message))
+        }
+        exception<NumberFormatException> {exception ->
+            call.respond(HttpStatusCode(400,"Number Format Exception(check page/limit)"))
+        }
         exception<GETException> { exception ->
             when(exception.message) {
                 "/logout" -> call.respond(HttpStatusCode.Unauthorized)
                 "/profile" -> call.respond(HttpStatusCode.Unauthorized)
-                else -> call.respond(HttpStatusCode.BadRequest)
+                else -> call.respond(HttpStatusCode(404,exception.message))
             }
         }
         exception<PUTException> { exception ->
             when(exception.message) {
-                "/users/[email]/[username]/[password]" -> call.respond(HttpStatusCode(422, "Unprocessable Entity"))
-                else -> call.respond(HttpStatusCode.BadRequest)
+                "/users/[email]/[username]/[password]" -> call.respond(HttpStatusCode(422, "Alredy Logined"))
+                else -> call.respond(HttpStatusCode(404,exception.message))
             }
         }
         exception<POSTException> { exception ->
             when(exception.message) {
-                "/login" -> call.respond(HttpStatusCode(422, "Unprocessable Entity"))
+                "/login/[email]/[password]" -> call.respond(HttpStatusCode(422, "Alredy Logined"))
                 "/users/[userID]/[dataType]/[newValue]" -> call.respond(HttpStatusCode.Forbidden)
                 "/profile/[dataType]/[newValue]" -> call.respond(HttpStatusCode.Unauthorized)
-                else -> call.respond(HttpStatusCode.BadRequest)
+                else -> call.respond(HttpStatusCode(404,exception.message))
             }
         }
     }

@@ -2,14 +2,14 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-fun checkPass(userID: Int?, pass:String): Boolean {
+fun SQLCheckPass(userID: Int?, pass:String): Boolean {
     var result = false
         transaction {
             try {
                 val target = UserData.findById(userID!!)
                     val basehash = target?.userPass
                     val basesalt1 = target!!.baseSalt1
-                    val basesalt2 = target!!.baseSalt2
+                    val basesalt2 = target.baseSalt2
                     if (hashit(pass, basesalt1, basesalt2).equals(basehash)) {
                         result = true
                         println(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME)+" User $userID: Password checked")

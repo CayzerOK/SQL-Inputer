@@ -5,9 +5,9 @@ fun SQLDelete(userID:Int): HttpStatusCode {
     var result = HttpStatusCode.BadRequest
     try {
         transaction {
-            var target = UserData.findById(userID)
+            val target = UserData.findById(userID)
             if (target != null) {
-                target.delete()
+                target.userRole = "DELETED"
                 result = HttpStatusCode.OK
             }
         }

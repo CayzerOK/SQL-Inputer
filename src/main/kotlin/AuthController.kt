@@ -13,47 +13,26 @@ fun Route.LogoutUser() {
         println(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME) +
                 " ${session.role} ${session.userID}: logout")
         call.sessions.clear<SessionData>()
-        when {
-            User.haveFullAccess -> call.respond(SQLGetFullUserData(session.userID))
-            !User.haveFullAccess -> call.respond(SQLGetUserData(session.userID))
-        }
+        call.respond(HttpStatusCode.OK)
     }
 }
+
 fun Route.LoginUser() {
     post<lLoginData> { loginCall ->
-        val userData = SQLGetFullUserData(SQLGetID(loginCall.email))
-        if (checkPass(userData.userID, loginCall.password)) {
+        val userData = SQL.GetFullUserData(SQL.GetUserID(loginCall.email))
+        if (userData.ban == true) {
+            call.respond(HttpStatusCode(410, "Banned"))
+        }
+        if (SQL.CheckPass(userData.userID!!, loginCall.password)) {
             call.sessions.set(SessionData(userData.userID, userData.role!!))
             val session = call.sessions.get<SessionData>() ?: SessionData(0, "Guest")
             call.respond(HttpStatusCode.OK)
             println(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME) +
                     " ${session.role} ${session.userID}: login")
         } else {
-            call.respond(HttpStatusCode.BadRequest)
+            call.respond(HttpStatusCode(400,"Wrong Password"))
             println(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME) +
                     "Guest 0: login denied")
-        }
-    }
-}
-fun Route.Users() {
-    get("/profile") {
-        val session = call.sessions.get<SessionData>() ?: SessionData(0, "Guest")
-        when {
-            session.userID == 0 -> call.respond(HttpStatusCode.Unauthorized )
-            User.haveFullAccess -> call.respond(SQLGetFullUserData(session.userID))
-            !User.haveFullAccess -> call.respond(SQLGetUserData(session.userID))
-        }
-    }
-    get<lGetUsers> {usersCall ->
-        when(User.haveFullAccess){
-            true -> call.respond(SQLGetFullUsers(usersCall.page, usersCall.limit))
-            false -> call.respond(SQLGetUsers(usersCall.page, usersCall.limit))
-        }
-    }
-    get<lUser> {userCall ->
-        when(User.haveFullAccess){
-            true -> call.respond(SQLGetFullUserData(SQLGetID(userCall.email)))
-            false -> call.respond(SQLGetUserData(SQLGetID(userCall.email)))
         }
     }
 }
