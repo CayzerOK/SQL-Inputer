@@ -10,10 +10,9 @@ data class UserRights(
         val accessToPUT:List<String>,
         val accessToPOST:List<String>,
         val accessToDELETE:List<String>,
-        val canBan:Boolean,
-        val canMute:Boolean)
+        val canBan:Boolean)
 
-var user = UserRights(false, listOf(""), listOf(""), listOf(""), listOf(""),false,false)
+var user = UserRights(false, listOf(""), listOf(""), listOf(""), listOf(""),false)
 
 class GETException(override var message:String): Exception(message)
 class POSTException(override var message:String): Exception(message)
@@ -31,32 +30,29 @@ fun Route.CheckRights() {
                     accessToPUT = listOf("/users/[email]/[username]/[password]"),
                     accessToPOST = listOf("/login/[email]/[password]"),
                     accessToDELETE = listOf(""),
-                    canBan = false,
-                    canMute = false)
-            "User","Puppet" -> user = UserRights(
+                    canBan = false)
+            "User" -> user = UserRights(
                     haveFullAccess = false,
                     accessToGET = listOf("/logout", "/profile", "/users/[page]/[limit]", "/users/[email]"),
                     accessToPUT = listOf(""),
                     accessToPOST = listOf("/profile/[dataType]/[newValue]"),
                     accessToDELETE = listOf("/profile"),
-                    canBan = false,
-                    canMute = false)
+                    canBan = false)
             "Moder" -> user = UserRights(
                     haveFullAccess = false,
                     accessToGET = listOf("/logout", "/profile", "/users/[page]/[limit]", "/users/[email]"),
                     accessToPUT = listOf(""),
                     accessToPOST = listOf("/users/[userID]/[dataType]/[newValue]", "/profile/[dataType]/[newValue]"),
                     accessToDELETE = listOf("/profile"),
-                    canBan = false,
-                    canMute = true)
-            "Admin", "AdminPuppet" -> user = UserRights(
+                    canBan = false)
+            "Admin" -> user = UserRights(
                     haveFullAccess = true,
                     accessToGET = listOf(""),
                     accessToPUT = listOf(""),
                     accessToPOST = listOf(""),
                     accessToDELETE = listOf(""),
-                    canBan = true,
-                    canMute = true)
+                    canBan = true)
+            else -> throw CallException(410, "Deleted/Banned")
         }
         var RouteString = call.route.parent.toString()
         when (call.request.local.method.value) {

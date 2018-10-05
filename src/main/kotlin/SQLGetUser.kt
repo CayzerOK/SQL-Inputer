@@ -1,4 +1,3 @@
-
 import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -25,7 +24,6 @@ data class UserFullData(val userID: Int?=null,
                         val userName: String?=null,
                         val avatarURL: String?=null,
                         val role: String?=null,
-                        val ban: Boolean?=null,
                         val mute: Boolean?=null)
 
 fun SQLGetUserData(userID: Int): UserPublicData {
@@ -43,7 +41,7 @@ fun SQLGetUserData(userID: Int): UserPublicData {
     return result!!
 }
 fun SQLGetFullUserData(userID: Int?): UserFullData {
-    var result = UserFullData(0,"","","","",false, false)
+    var result = UserFullData(0,"","","","",false)
     transaction {
         val content = UserData.findById(userID!!)
         result = UserFullData(
@@ -52,7 +50,6 @@ fun SQLGetFullUserData(userID: Int?): UserFullData {
                 content?.userName,
                 content?.avatarURL,
                 content?.userRole,
-                content?.ban,
                 content?.mute)
     }
     if (result.userName == null) {throw CallException(404, "User not found")}
@@ -61,9 +58,6 @@ fun SQLGetFullUserData(userID: Int?): UserFullData {
 
 
 fun SQLGetUsers(page:Int, limit:Int): MutableList<UserPublicData> {
-
-    if(limit<=0) throw CallException(400, "Wrong Sintax(limit<=0)")
-    if(page<=0) throw CallException(400, "Wrong Sintax(page<=0)")
         val userlist = mutableListOf<UserPublicData>()
     transaction {
         val content = UserData.find{
@@ -84,8 +78,6 @@ fun SQLGetUsers(page:Int, limit:Int): MutableList<UserPublicData> {
 }
 
 fun SQLGetFullUsers(page:Int, limit:Int): MutableList<UserFullData> {
-    if(limit<=0) throw CallException(400, "Wrong Sintax(limit<=0)")
-    if(page<=0) throw CallException(400, "Wrong Sintax(page<=0)")
     val userlist = mutableListOf<UserFullData>()
     transaction {
         val content = UserData.all().limit(limit, page*limit-limit)
@@ -96,10 +88,17 @@ fun SQLGetFullUsers(page:Int, limit:Int): MutableList<UserFullData> {
                     users.userName,
                     users.avatarURL,
                     users.userRole,
-                    users.ban,
                     users.mute))
         }
     }
     if(userlist.isEmpty()) throw CallException(404,"Out of list range")
     return userlist
+}
+
+fun SQLLogin(email:String, password:String) : SessionData {
+    val userData = SQL.GetFullUserData(SQL.GetUserID(email))
+    if (!SQL.CheckPass(userData.userID!!,password)) {throw CallException(400, "Wrong Password")}
+    when(userData.role){
+        else -> return SessionData(userData.userID,userData.role!!)
+    }
 }

@@ -10,4 +10,5 @@ interface DAOInterface {
     fun Insert(email:String,username:String, password:String) : HttpStatusCode
     fun GetUserID(email: String): Int
     fun CheckPass(userID: Int,password: String): Boolean
+    fun Login(email:String, password:String): SessionData
 }

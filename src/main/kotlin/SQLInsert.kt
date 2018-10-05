@@ -24,5 +24,5 @@ fun SQLInsert(email:String, username:String, password:String): HttpStatusCode {
         }
     }
     println(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME)+" User $username registred. UserID = ${SQLGetID(email)}")
-    return HttpStatusCode.OK
+    return HttpStatusCode.Created
 }

@@ -12,7 +12,7 @@ import org.jetbrains.exposed.sql.*
 import java.sql.SQLSyntaxErrorException
 import java.text.DateFormat
 
-val baseURL:String = "jdbc:mysql://localhost:3306/user_base?useUnicode=true&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC"
+val baseURL:String = "jdbc:mysql://localhost:3306/user_base?useUnicode=true&autoReconnect=true&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC"
 val baseDriver:String = "com.mysql.cj.jdbc.Driver"
 val baseRoot:String = "root"
 val basePass:String = "3CE0DE8545098E16CDB"
@@ -65,32 +65,35 @@ fun Application.main() {
     }
     install(DataConversion)
     install(StatusPages) {
-        exception<CallException> {exception ->
-            call.respond(HttpStatusCode(exception.code,exception.message))
+        exception<ExceptionInInitializerError> {
+            call.respond(HttpStatusCode.InternalServerError,"Database Not Found")
         }
-        exception<NumberFormatException> {exception ->
-            call.respond(HttpStatusCode(400,"Number Format Exception(check page/limit)"))
+        exception<CallException> {exception ->
+            call.respond(HttpStatusCode.fromValue(exception.code), exception.message)
         }
         exception<GETException> { exception ->
             when(exception.message) {
-                "/logout" -> call.respond(HttpStatusCode.Unauthorized)
-                "/profile" -> call.respond(HttpStatusCode.Unauthorized)
-                else -> call.respond(HttpStatusCode(404,exception.message))
+                "/logout" -> call.respond(HttpStatusCode.Unauthorized,"Unauthorized")
+                "/profile" -> call.respond(HttpStatusCode.Unauthorized,"Unauthorized")
+                else -> call.respond(HttpStatusCode.NotFound, "Not Found")
             }
         }
         exception<PUTException> { exception ->
             when(exception.message) {
-                "/users/[email]/[username]/[password]" -> call.respond(HttpStatusCode(422, "Alredy Logined"))
-                else -> call.respond(HttpStatusCode(404,exception.message))
+                "/users/[email]/[username]/[password]" -> call.respond(HttpStatusCode.Conflict, "Alredy Logined")
+                else -> call.respond(HttpStatusCode.NotFound,"Not Found")
             }
         }
         exception<POSTException> { exception ->
             when(exception.message) {
-                "/login/[email]/[password]" -> call.respond(HttpStatusCode(422, "Alredy Logined"))
-                "/users/[userID]/[dataType]/[newValue]" -> call.respond(HttpStatusCode.Forbidden)
-                "/profile/[dataType]/[newValue]" -> call.respond(HttpStatusCode.Unauthorized)
-                else -> call.respond(HttpStatusCode(404,exception.message))
+                "/login/[email]/[password]" -> call.respond(HttpStatusCode.Conflict,"Alredy Logined")
+                "/users/[userID]/[dataType]/[newValue]" -> call.respond(HttpStatusCode.Forbidden, "Forbidden")
+                "/profile/[dataType]/[newValue]" -> call.respond(HttpStatusCode.Unauthorized, "Unauthorized")
+                else -> call.respond(HttpStatusCode.NotFound,"Not Found")
             }
+        }
+        exception<DELException> {
+            call.respond(HttpStatusCode.Forbidden)
         }
     }
     install(Locations)

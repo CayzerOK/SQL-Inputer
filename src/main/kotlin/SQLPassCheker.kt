@@ -5,7 +5,6 @@ import java.time.format.DateTimeFormatter
 fun SQLCheckPass(userID: Int?, pass:String): Boolean {
     var result = false
         transaction {
-            try {
                 val target = UserData.findById(userID!!)
                     val basehash = target?.userPass
                     val basesalt1 = target!!.baseSalt1
@@ -17,9 +16,6 @@ fun SQLCheckPass(userID: Int?, pass:String): Boolean {
                         result = false
                         println(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME)+" User $userID: Wrong login data")
                     }
-            }catch (e:Exception){
-                result = false
-            }
         }
     return result
 }

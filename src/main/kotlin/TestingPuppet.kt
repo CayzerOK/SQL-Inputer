@@ -1,6 +1,6 @@
-val useTestingPuppet = false
+val useTestingPuppet = true
 
-var SQL = when (useTestingPuppet) {
+val SQL = when (useTestingPuppet) {
     true -> PuppetClass
     else -> BaseClass
 }
@@ -10,8 +10,7 @@ object TestingPuppet {
             userEmail = "example@email.pp",
             userName = "Testing_Puppet_Name",
             avatarURL = "Puppet_URL",
-            role = "AdminPuppet",
-            ban = false,
+            role = "Puppet",
             mute = false)
     val publicData = UserPublicData(
            fullData.userEmail!!,
@@ -22,5 +21,5 @@ object TestingPuppet {
     val pass = "12345"
     val puppetList = listOf(publicData,publicData,publicData,publicData,publicData)
     val fullPuppetList = listOf(fullData,fullData,fullData,fullData,fullData)
-    val dataTypes = listOf("email","role", "username","password","avatarURL")
+    val dataTypes = listOf("email","role", "username","password","avatarURL","mute")
 }
