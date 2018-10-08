@@ -97,8 +97,5 @@ fun SQLGetFullUsers(page:Int, limit:Int): MutableList<UserFullData> {
 
 fun SQLLogin(email:String, password:String) : SessionData {
     val userData = SQL.GetFullUserData(SQL.GetUserID(email))
-    if (!SQL.CheckPass(userData.userID!!,password)) {throw CallException(400, "Wrong Password")}
-    when(userData.role){
-        else -> return SessionData(userData.userID,userData.role!!)
-    }
+    return SessionData(userData.userID,userData.role!!)
 }

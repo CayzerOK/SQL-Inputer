@@ -26,13 +26,19 @@ fun Route.DeleteUser() {
 }
 fun Route.EditUser() {
     post<lUpdateData> { editCall ->
-        if (editCall.newValue.contains("BANNED")) {
-            if (!user.canBan) {throw CallException(403,"Access Denied")}
+        if (editCall.dataType.contains("role") && !user.haveFullAccess) {
+            throw CallException(403,"Access Denied")
         }
+        if(editCall.dataType.lastIndex != editCall.newValue.lastIndex){ throw CallException(400, "Lists Are Not Equal")}
         call.respond(SQL.Update(editCall.userID,editCall.dataType,editCall.newValue))
     }
     post<lUpdateMe> { editCall ->
-        if (editCall.newValue.contains("BANNED")) {throw CallException(403,"Access Denied")}
+        when {
+            editCall.dataType.lastIndex != editCall.newValue.lastIndex -> throw CallException(400, "Lists Are Not Equal")
+            editCall.dataType.contains("role") -> throw CallException(403,"Access Denied")
+            editCall.dataType.contains("userID") -> throw CallException(403,"Access Denied")
+            editCall.dataType.contains("mute") -> throw CallException(403,"Access Denied")
+        }
         val session = call.sessions.get<SessionData>() ?: SessionData(0, "Guest")
         call.respond(SQL.Update(session.userID!!,editCall.dataType,editCall.newValue))
     }

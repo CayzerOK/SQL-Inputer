@@ -93,7 +93,7 @@ fun Application.main() {
             }
         }
         exception<DELException> {
-            call.respond(HttpStatusCode.Forbidden)
+            call.respond(HttpStatusCode.Forbidden,"Forbitten")
         }
     }
     install(Locations)

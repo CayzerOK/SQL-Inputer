@@ -24,7 +24,7 @@ fun SQLUpdate(userID: Int, dataType:List<String>, newValue:List<String>): HttpSt
                 salt2 = saltGenerator(6)
             }
             "avatarURL" -> newAvatarURL = newValue.get(dataIndex)
-            else -> throw CallException(400,"Wrong Or Empty Data Type")
+            else -> throw CallException(400,"Ivalid dataType")
         }
         if(newValue.get(dataIndex) == "") throw CallException(400, "Empty Value")
     }

@@ -19,7 +19,13 @@ fun Route.LogoutUser() {
 fun Route.LoginUser() {
     post<lLoginData> { loginCall ->
         if(!isEmailValid(loginCall.email)) {throw CallException(400, "Invalid Email")}
-        else call.sessions.set(SQL.Login(loginCall.email,loginCall.password))
+        val userData = SQL.GetFullUserData(SQL.GetUserID(loginCall.email))
+        when{
+            !SQL.CheckPass(userData.userID!!, loginCall.password) -> throw CallException(400, "Wrong Password")
+            userData.role == "BANNED" -> throw CallException(410, "Banned")
+            userData.role == "DELETED" -> throw CallException(410, "Deleted")
+        }
+        call.sessions.set(SessionData(userData.userID,userData.role!!))
         call.respond(HttpStatusCode.OK)
     }
 }
