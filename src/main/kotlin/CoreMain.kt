@@ -9,7 +9,7 @@ import io.ktor.routing.*
 import io.ktor.sessions.*
 import org.jetbrains.exposed.dao.*
 import org.jetbrains.exposed.sql.*
-import java.sql.SQLSyntaxErrorException
+import java.sql.BatchUpdateException
 import java.text.DateFormat
 
 val baseURL:String = "jdbc:mysql://localhost:3306/user_base?useUnicode=true&autoReconnect=true&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC"
@@ -67,6 +67,9 @@ fun Application.main() {
     install(StatusPages) {
         exception<ExceptionInInitializerError> {
             call.respond(HttpStatusCode.InternalServerError,"Database Not Found")
+        }
+        exception<BatchUpdateException> { exception ->
+            call.respond(HttpStatusCode.Conflict, "Email Alredy Used")
         }
         exception<CallException> {exception ->
             call.respond(HttpStatusCode.fromValue(exception.code), exception.message)

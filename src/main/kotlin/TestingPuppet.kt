@@ -13,12 +13,12 @@ object TestingPuppet {
             role = "Puppet",
             mute = false)
     val publicData = UserPublicData(
-           fullData.userEmail!!,
+            fullData.userEmail!!,
             fullData.userName!!,
             fullData.avatarURL!!,
             fullData.role!!,
             fullData.mute!!)
-    val pass = "12345"
+    val pass = "123456"
     val puppetList = listOf(publicData,publicData,publicData,publicData,publicData)
     val fullPuppetList = listOf(fullData,fullData,fullData,fullData,fullData)
     val dataTypes = listOf("email","role", "username","password","avatarURL","mute")
